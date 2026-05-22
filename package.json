@@ -1,0 +1,58 @@
+{
+  "name": "tokenviewer",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Interactive in-browser comparison of how LLM tokenizers segment text, with cross-tokenizer efficiency analysis.",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://example.github.io/tokenviewer/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/example/tokenviewer"
+  },
+  "keywords": [
+    "tokenizer",
+    "tokenization",
+    "bpe",
+    "sentencepiece",
+    "llm",
+    "tiktoken",
+    "visualization",
+    "svelte"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "prettier --check .",
+    "format": "prettier --write .",
+    "precompute": "tsx scripts/precompute_baseline.ts",
+    "smoke": "node scripts/smoke.mjs",
+    "fetch:tokenizers": "node scripts/fetch_tokenizers.mjs",
+    "fetch:assets": "node scripts/fetch_assets.mjs",
+    "setup": "node scripts/fetch_assets.mjs && node scripts/fetch_tokenizers.mjs"
+  },
+  "dependencies": {
+    "@lenml/tokenizers": "^3.7.2",
+    "js-tiktoken": "^1.0.16",
+    "svelte": "^5.16.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "@tsconfig/svelte": "^5.0.4",
+    "@types/node": "^25.9.1",
+    "prettier": "^3.4.2",
+    "prettier-plugin-svelte": "^3.3.2",
+    "svelte-check": "^4.1.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

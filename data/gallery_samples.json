@@ -1,0 +1,75 @@
+{
+  "about": "Curated inputs for the gallery. Each is chosen to make a specific cross-tokenizer difference visible at a glance. See docs/UI_DESIGN.md.",
+  "samples": [
+    {
+      "id": "en-contrast",
+      "title": "English prose: near-parity",
+      "why": "On plain English every modern tokenizer lands within a few percent of the others. This is the baseline that makes the other samples striking.",
+      "category": "English",
+      "text": "The lighthouse keeper had not spoken to another person in nineteen days, and he was beginning to suspect that the gulls understood him better than most people ever had."
+    },
+    {
+      "id": "zh-paragraph",
+      "title": "Chinese: the token tax",
+      "why": "The same passage costs roughly three times more tokens under GPT-2 than under DeepSeek or o200k. Watch GPT-2 split single characters into byte fragments.",
+      "category": "Chinese",
+      "text": "灯塔看守人已经十九天没有和任何人说过话了。他开始怀疑,海鸥比大多数人更能理解他。每天清晨,他都会爬上那道铁梯,出于习惯数着台阶,望着灰色的海水。"
+    },
+    {
+      "id": "py-types",
+      "title": "Python with type hints",
+      "why": "Indentation, brackets and arrows are tokenized very differently across families. GPT-2 in particular shreds the leading whitespace into many tokens.",
+      "category": "Code",
+      "text": "def merge(pairs: dict[tuple[int, int], int], data: bytes) -> list[int]:\n    tokens: list[int] = list(data)\n    while len(tokens) >= 2:\n        best = min(pairs, key=lambda p: pairs.get(p, 1 << 30))\n    return tokens"
+    },
+    {
+      "id": "latex-math",
+      "title": "LaTeX math",
+      "why": "Backslash commands and braces fragment heavily. The same formula can vary by more than 1.5x in token count between tokenizers.",
+      "category": "Math",
+      "text": "\\frac{\\partial \\mathcal{L}}{\\partial \\theta_j} = -\\sum_{i=1}^{n} \\left( y_i - \\hat{y}_i \\right) x_{ij} + \\lambda\\,\\theta_j"
+    },
+    {
+      "id": "numbers",
+      "title": "Numbers and arithmetic",
+      "why": "Tokenizers chunk long digit strings differently — cl100k, o200k and Llama-3 cap digit runs at three in their pre-tokenizer, GPT-2 does not. Inconsistent grouping is one reason models struggle with long arithmetic.",
+      "category": "Numbers",
+      "text": "Compute 1234567890 plus 3.14159265358979. Budget: $1,000,000.00 over 12 months. Constants: 0xFF, 0b1011, 2026, and 9007199254740991."
+    },
+    {
+      "id": "emoji",
+      "title": "Emoji, ZWJ sequences and skin tones",
+      "why": "A 'family' emoji is one grapheme but several code points joined by zero-width joiners. Every tokenizer splits it, usually mid-sequence.",
+      "category": "Emoji",
+      "text": "Family: 👨‍👩‍👧‍👦. Thumbs up with skin tone: 👍🏽. Flags: 🇯🇵 🇰🇪 🇸🇦. Combining marks: café vs café — same look, different bytes."
+    },
+    {
+      "id": "swahili",
+      "title": "Swahili: a low-resource control",
+      "why": "Latin script, so it is not penalised for its alphabet — yet it still costs far more tokens than English. That gap is training-data coverage, not the writing system.",
+      "category": "Low-resource",
+      "text": "Mlinzi wa mnara wa taa hakuwa amezungumza na mtu yeyote kwa siku kumi na tisa, na alianza kushuku kwamba shakwe walimwelewa vizuri kuliko watu wengi."
+    },
+    {
+      "id": "arabic",
+      "title": "Arabic: right-to-left, rich morphology",
+      "why": "Arabic attaches articles and pronouns as affixes, and older tokenizers fall back to byte fragments — token counts climb sharply.",
+      "category": "Arabic",
+      "text": "لم يتحدث حارس المنارة إلى أي شخص آخر منذ تسعة عشر يوما، وبدأ يشك في أن النوارس تفهمه أفضل من معظم الناس."
+    },
+    {
+      "id": "mixed",
+      "title": "Mixed code, comments and CJK",
+      "why": "Real source files mix scripts. The agreement panel lights up exactly at the script boundaries, where tokenizers stop cutting in the same places.",
+      "category": "Mixed",
+      "text": "function 计算合计(items) {\n  // 注释: TODO — handle the empty list\n  return items.reduce((总和, x) => 总和 + x, 0);\n}"
+    },
+    {
+      "id": "stress",
+      "title": "Whitespace, repetition and long words",
+      "why": "Runs of spaces, repeated punctuation and very long words expose how each tokenizer handles merges it was never optimised for.",
+      "category": "Edge case",
+      "text": "Indented:\n        eight spaces, then\ta tab.\nRepeats: aaaaaaaaaaaaaaaa and ================ and ............\nLong word: pneumonoultramicroscopicsilicovolcanoconiosis."
+    }
+  ]
+}

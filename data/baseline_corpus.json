@@ -1,0 +1,75 @@
+{
+  "about": "Standardized comparison corpus. The five language samples (en-prose, zh, ja, ar, sw) are the same passage translated, so the reference table shows the per-language token-cost gap on identical content. The remaining five probe code, query, math, and notation. See docs/CORPUS_DESIGN.md. All texts are original, written for this project.",
+  "texts": [
+    {
+      "id": "en-prose",
+      "category": "English prose",
+      "language": "English",
+      "note": "Literary register. The shared passage; near-optimal for every tokenizer.",
+      "text": "The lighthouse keeper had not spoken to another person in nineteen days, and he was beginning to suspect that the gulls understood him better than most people ever had. Each morning he climbed the iron stair, counted the steps out of habit, and watched the grey water decide what kind of day it would be."
+    },
+    {
+      "id": "en-technical",
+      "category": "English technical",
+      "language": "English",
+      "note": "Programming documentation register: identifiers, compound terms.",
+      "text": "To install the package, run the build command from the project root. The compiler reads configuration from a single file and emits a static bundle. If the cache directory is missing, it is created automatically; otherwise, stale artifacts are invalidated by comparing content hashes against the previous run."
+    },
+    {
+      "id": "zh",
+      "category": "Chinese",
+      "language": "Mandarin (Simplified)",
+      "note": "The shared passage in Chinese. Headline fairness exhibit.",
+      "text": "灯塔看守人已经十九天没有和任何人说过话了。他开始怀疑,海鸥比大多数人更能理解他。每天清晨,他都会爬上那道铁梯,出于习惯数着台阶,望着灰色的海水,看它今天打算变成什么样子。"
+    },
+    {
+      "id": "ja",
+      "category": "Japanese",
+      "language": "Japanese",
+      "note": "The shared passage in Japanese: mixed kana and kanji.",
+      "text": "灯台守は十九日間、誰とも話していなかった。彼は、ほとんどの人よりもカモメのほうが自分をよく理解してくれていると思い始めていた。毎朝、鉄の階段を登り、習慣で段数を数え、灰色の海がどんな一日になるかを眺めていた。"
+    },
+    {
+      "id": "ar",
+      "category": "Arabic",
+      "language": "Modern Standard Arabic",
+      "note": "The shared passage in Arabic: right-to-left, rich morphology.",
+      "text": "لم يتحدث حارس المنارة إلى أي شخص آخر منذ تسعة عشر يوما، وبدأ يشك في أن النوارس تفهمه أفضل من معظم الناس. كان يصعد الدرج الحديدي كل صباح، ويعد الدرجات بدافع العادة، ويراقب الماء الرمادي ليرى أي نوع من الأيام سيكون."
+    },
+    {
+      "id": "sw",
+      "category": "Swahili",
+      "language": "Swahili",
+      "note": "The shared passage in Swahili: a low-resource control in Latin script.",
+      "text": "Mlinzi wa mnara wa taa hakuwa amezungumza na mtu yeyote kwa siku kumi na tisa, na alianza kushuku kwamba shakwe walimwelewa vizuri kuliko watu wengi. Kila asubuhi alipanda ngazi ya chuma, akihesabu hatua kwa mazoea, akitazama maji ya kijivu yakiamua siku ya namna gani itakuwa."
+    },
+    {
+      "id": "code-python",
+      "category": "Python with type hints",
+      "language": "Python",
+      "note": "Indentation, colons, arrows, brackets, snake_case identifiers.",
+      "text": "def merge_ranks(pairs: dict[tuple[int, int], int], data: bytes) -> list[int]:\n    tokens: list[int] = list(data)\n    while len(tokens) >= 2:\n        candidate = min(pairs, key=lambda p: pairs.get(p, 1 << 30))\n        if candidate not in pairs:\n            break\n    return tokens"
+    },
+    {
+      "id": "code-sql",
+      "category": "SQL",
+      "language": "SQL",
+      "note": "Uppercase keywords, dense punctuation, qualified identifiers.",
+      "text": "SELECT u.id, u.email, COUNT(o.id) AS order_count FROM users AS u LEFT JOIN orders AS o ON o.user_id = u.id WHERE u.created_at >= '2025-01-01' GROUP BY u.id, u.email HAVING COUNT(o.id) > 3 ORDER BY order_count DESC LIMIT 50;"
+    },
+    {
+      "id": "math-latex",
+      "category": "LaTeX math",
+      "language": "LaTeX",
+      "note": "Backslash commands, braces, sub/superscripts.",
+      "text": "\\frac{\\partial \\mathcal{L}}{\\partial \\theta_j} = -\\sum_{i=1}^{n} \\left( y_i - \\hat{y}_i \\right) x_{ij} + \\lambda\\,\\theta_j, \\quad \\text{where} \\quad \\hat{y}_i = \\sigma\\!\\left( \\theta^{\\top} x_i \\right)."
+    },
+    {
+      "id": "chem",
+      "category": "Chemical formulas / SMILES",
+      "language": "Notation",
+      "note": "Digits, brackets, element symbols. Shredded by most tokenizers.",
+      "text": "Caffeine is CN1C=NC2=C1C(=O)N(C(=O)N2C)C and aspirin is CC(=O)OC1=CC=CC=C1C(=O)O. The combustion of glucose, C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O, releases roughly 2803 kJ per mole under standard conditions."
+    }
+  ]
+}
