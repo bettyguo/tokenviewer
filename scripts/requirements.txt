@@ -1,0 +1,6 @@
+# Pin the canonical-reference tokenizer libraries so regenerating
+# tests/fixtures/reference.json on a fresh machine produces byte-identical
+# output. If you intentionally bump a version, regenerate the fixture
+# (`python scripts/gen_reference.py`) and commit the new reference.json.
+tiktoken==0.8.0
+tokenizers==0.20.3

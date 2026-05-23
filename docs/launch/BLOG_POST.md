@@ -1,7 +1,6 @@
-# Seven tokenizers, one paragraph: building a cross-tokenizer viewer
+# Nine tokenizers, one paragraph: building a cross-tokenizer viewer
 
-_Working title. ~1,500 words. Audience: ML engineers and multilingual NLP
-researchers._
+_~1,500 words. Audience: ML engineers and multilingual NLP researchers._
 
 Tokenization is the part of the LLM pipeline that is easiest to forget about
 and surprisingly expensive to get wrong. It runs before the model sees
@@ -11,8 +10,8 @@ single number — a token count in an API dashboard — and never look at the
 segmentation itself.
 
 This post is about a small tool for looking at it: an in-browser viewer that
-renders the same text through seven tokenizers at once, with an analysis layer
-underneath. The working name is `tokenviewer`. But the tool is the easy part;
+renders the same text through nine tokenizers at once, with an analysis layer
+underneath. The tool is `tokenviewer`. But the tool is the easy part;
 the interesting part is what becomes visible once you can compare.
 
 ## Why tokenizer choice is not a rounding error
@@ -61,11 +60,12 @@ single-tokenizer tools have no reason to have.
 
 ## The design
 
-Seven tokenizers, chosen for coverage rather than completeness: GPT-2,
-cl100k_base, and o200k_base (the OpenAI progression); Llama 3, DeepSeek-V3, and
-Qwen3 (dominant open-weight families, all byte-level BPE with different
-merges); and mT5, a SentencePiece unigram model — deliberately not BPE — so the
-set is not algorithmically monotone.
+Nine tokenizers, chosen for coverage rather than completeness: GPT-2,
+cl100k_base, and o200k_base (the OpenAI progression); Llama 3, DeepSeek-V3,
+Qwen3, and Mistral's tekken (dominant open-weight families, all byte-level
+BPE with different merges); and mT5 plus Gemma 2 (two SentencePiece variants,
+unigram and BPE, deliberately included so the set is not algorithmically
+monotone).
 
 Everything runs client-side. This is a deliberate constraint, not a
 convenience. The OpenAI encodings run through `js-tiktoken`; the Hugging Face
@@ -95,16 +95,16 @@ The token counts for that passage:
 
 | Language | Fewest tokens | Most tokens | Spread |
 | -------- | ------------: | ----------: | -----: |
-| English  |            61 |          77 |  1.26x |
+| English  |            60 |          77 |  1.28x |
 | Chinese  |            51 |         175 |  3.43x |
 | Japanese |            59 |         158 |  2.68x |
-| Arabic   |            70 |         213 |  3.04x |
+| Arabic   |            65 |         213 |  3.28x |
 | Swahili  |            83 |         118 |  1.42x |
 
 Two things are worth dwelling on.
 
 First, the spread _within_ a language. The English passage costs essentially
-the same — 61 to 62 tokens — under every byte-level BPE tokenizer; the writing
+the same — 60 to 62 tokens — under every byte-level BPE tokenizer; the writing
 system is well covered and the tokenizers have converged. The Chinese passage
 ranges from 51 to 175. The variance is not in the language; it is in the
 tokenizer. If you are building on Chinese text, the tokenizer is a 3x cost
@@ -112,7 +112,7 @@ lever, and most teams never look at it.
 
 Second, Swahili. It is written in the Latin alphabet, so it is not penalised
 for its script the way Chinese or Arabic might be. And yet the _best_ tokenizer
-spends 83 tokens on the Swahili passage versus 61 on the English one — 36%
+spends 83 tokens on the Swahili passage versus 60 on the English one — 38%
 more — and every tokenizer in the set shows the same gap. Same alphabet, same
 information, more tokens. The only remaining explanation is training-data
 coverage: the tokenizer simply learned fewer useful merges for Swahili. This is
@@ -157,12 +157,12 @@ signal that is not real.
 
 ## What is next
 
-The roadmap is short and concrete. More tokenizers — Gemma, Mistral's tekken,
-a WordPiece model — since each new release is a reason to look again. A proper
-mobile layout for the comparison tables. A batch mode for aggregate statistics
-over a whole document. An embeddable widget, so a comparison can live inside a
-blog post rather than behind a link. And a CLI sharing the same verified
-adapters, for when the question is scriptable.
+The roadmap is short and concrete. More tokenizers — a WordPiece model
+(BERT-family), Phi, and whichever 2026 releases turn out to be worth looking
+at — since each new release is a reason to look again. A batch mode for
+aggregate statistics over a whole document. An embeddable widget, so a
+comparison can live inside a blog post rather than behind a link. A
+"watch BPE merge" mini-demo in the spirit of Karpathy's tokenization lecture.
 
 But the core is done, and the core is the point: tokenization is worth looking
 at directly, and looking at it directly is now a paste away.

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Three stacked colored token spans on a dark canvas — the project's
+       core visual metaphor at favicon size. Okabe-Ito hues. -->
+  <rect width="32" height="32" rx="6" fill="#0a0b0e"/>
+  <rect x="6"  y="8"  width="20" height="4" rx="1.5" fill="#56b4e9" opacity="0.78"/>
+  <rect x="6"  y="14" width="14" height="4" rx="1.5" fill="#e69f00" opacity="0.78"/>
+  <rect x="6"  y="20" width="20" height="4" rx="1.5" fill="#cc79a7" opacity="0.78"/>
+  <rect x="22" y="14" width="4"  height="4" rx="1.5" fill="#009e73" opacity="0.78"/>
+</svg>

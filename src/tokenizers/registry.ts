@@ -106,6 +106,30 @@ export const TOKENIZERS: TokenizerSpec[] = [
     source: 'mt5',
     defaultOn: true,
   },
+  {
+    code: 'gemma',
+    name: 'Gemma 2',
+    family: 'Google',
+    algorithm: 'SentencePiece BPE',
+    vocabSize: 256000,
+    reference: 'https://huggingface.co/google/gemma-2-2b',
+    note: 'SentencePiece BPE — different SP variant from mT5, large 256k vocab.',
+    engine: 'hf',
+    source: 'gemma',
+    defaultOn: true,
+  },
+  {
+    code: 'mistral',
+    name: 'Mistral (tekken)',
+    family: 'Mistral',
+    algorithm: 'byte-level BPE',
+    vocabSize: 131072,
+    reference: 'https://huggingface.co/mistralai/Mistral-Nemo-Base-2407',
+    note: 'The 2024 tekken byte-level BPE; tiktoken-derived, 131k vocab.',
+    engine: 'hf',
+    source: 'mistral',
+    defaultOn: true,
+  },
 ];
 
 export const TOKENIZER_BY_CODE: ReadonlyMap<string, TokenizerSpec> = new Map(

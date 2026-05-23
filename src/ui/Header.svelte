@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  export const REPO_URL = 'https://github.com/example/tokenviewer';
+  export const REPO_URL = 'https://github.com/bettyguo/tokenviewer';
 </script>
 
 <script lang="ts">
@@ -11,11 +11,11 @@
 
 <header class="hdr">
   <div class="brand">
-    <div class="wordmark mono">
-      tokenviewer<span class="caret">_</span>
-    </div>
+    <h1 class="wordmark mono">
+      tokenviewer<span class="caret" aria-hidden="true">_</span>
+    </h1>
     <p class="tagline">
-      Compare how LLM tokenizers segment the same text, side by side.
+      Nine LLM tokenizers, one paragraph — see who pays the token tax.
     </p>
   </div>
 
@@ -53,14 +53,21 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: 24px;
-    padding: 22px 0 18px;
+    padding: 18px 0 14px;
     border-bottom: 1px solid var(--border);
     flex-wrap: wrap;
   }
   .wordmark {
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 500;
     letter-spacing: -0.02em;
+    margin: 0;
+    line-height: 1;
+  }
+  @media (min-width: 720px) {
+    .wordmark {
+      font-size: 30px;
+    }
   }
   .caret {
     color: var(--accent);
@@ -77,10 +84,13 @@
     }
   }
   .tagline {
-    margin: 4px 0 0;
-    color: var(--text-dim);
-    font-size: 13px;
-    max-width: 46ch;
+    margin: 6px 0 0;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.4;
+    max-width: 56ch;
+    letter-spacing: -0.005em;
   }
   .hdr-right {
     display: flex;
@@ -103,14 +113,14 @@
     height: 6px;
     border-radius: 50%;
     background: var(--good);
-    box-shadow: 0 0 7px var(--good);
+    box-shadow: 0 0 4px color-mix(in srgb, var(--good) 60%, transparent);
   }
   .ibtn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border: 1px solid var(--border);
     border-radius: var(--r-md);
     background: var(--bg-raised);
@@ -122,5 +132,11 @@
   .ibtn:hover {
     color: var(--text);
     border-color: var(--border-strong);
+  }
+  @media (max-width: 600px) {
+    .ibtn {
+      width: 44px;
+      height: 44px;
+    }
   }
 </style>

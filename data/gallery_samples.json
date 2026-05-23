@@ -13,7 +13,7 @@
       "title": "Chinese: the token tax",
       "why": "The same passage costs roughly three times more tokens under GPT-2 than under DeepSeek or o200k. Watch GPT-2 split single characters into byte fragments.",
       "category": "Chinese",
-      "text": "灯塔看守人已经十九天没有和任何人说过话了。他开始怀疑,海鸥比大多数人更能理解他。每天清晨,他都会爬上那道铁梯,出于习惯数着台阶,望着灰色的海水。"
+      "text": "灯塔看守人已经十九天没有和任何人说过话了。他开始怀疑,海鸥比大多数人更能理解他。每天清晨,他都会爬上那道铁梯,出于习惯数着台阶,望着灰色的海水,看它今天打算变成什么样子。"
     },
     {
       "id": "py-types",

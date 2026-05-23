@@ -83,8 +83,8 @@
   ];
 </script>
 
-<section class="ct">
-  <span class="eyebrow">Comparison</span>
+<section class="ct" aria-labelledby="ct-h">
+  <h2 id="ct-h" class="eyebrow">Comparison</h2>
   {#if rows.length === 0}
     <div class="ct-empty">Nothing to compare yet.</div>
   {:else}
@@ -93,46 +93,58 @@
         <thead>
           <tr>
             {#each COLS as col (col.key)}
-              <th>
+              <th
+                scope="col"
+                aria-sort={sortKey === col.key
+                  ? sortAsc
+                    ? 'ascending'
+                    : 'descending'
+                  : 'none'}
+              >
                 <button
                   class="sortbtn"
                   onclick={() => sortBy(col.key)}
                   title={col.hint}
                 >
                   {col.label}
-                  <span class="arrow"
+                  <span class="arrow" aria-hidden="true"
                     >{sortKey === col.key ? (sortAsc ? '▲' : '▼') : ''}</span
                   >
                 </button>
               </th>
             {/each}
-            <th class="th-plain">Longest token</th>
+            <th class="th-plain" scope="col">Longest token</th>
           </tr>
         </thead>
         <tbody>
           {#each sorted as row (row.code)}
             <tr>
-              <td>
-                <span class="key" style:background={tokenizerHue(row.code)}></span>
+              <th class="cell-name" scope="row">
+                <span
+                  class="key"
+                  style:background={tokenizerHue(row.code)}
+                  aria-hidden="true"
+                ></span>
                 {row.name}
-              </td>
+              </th>
               <td
                 class="num"
+                data-label="Tokens"
                 class:best={row.tokens === minTokens}
                 class:worst={row.tokens === maxTokens && minTokens !== maxTokens}
               >
                 {row.tokens.toLocaleString()}
               </td>
-              <td class="num">{row.charsPerTok.toFixed(2)}</td>
-              <td class="num">{row.bytesPerTok.toFixed(2)}</td>
-              <td class="num">
+              <td class="num" data-label="Chars / tok">{row.charsPerTok.toFixed(2)}</td>
+              <td class="num" data-label="Bytes / tok">{row.bytesPerTok.toFixed(2)}</td>
+              <td class="num" data-label="Word frag.">
                 {#if row.fragRate === null}
                   <span class="na">n/a</span>
                 {:else}
                   {(row.fragRate * 100).toFixed(0)}%
                 {/if}
               </td>
-              <td class="longest">
+              <td class="longest" data-label="Longest token">
                 <span class="lt">{row.longestText}</span>
                 <span class="lb">{row.longestBytes} B</span>
               </td>
@@ -229,5 +241,64 @@
     color: var(--text-dim);
     font-size: 13px;
     padding: 14px 0;
+  }
+
+  /* Mobile: reflow the table into per-tokenizer cards so no column scrolls
+     off-screen. Header row collapses; each `td` becomes a label/value row
+     using its `data-label`. */
+  @media (max-width: 600px) {
+    .scroll-x {
+      overflow-x: visible;
+    }
+    table,
+    thead,
+    tbody,
+    tr,
+    th,
+    td {
+      display: block;
+      width: 100%;
+    }
+    thead {
+      display: none;
+    }
+    tbody tr {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 9px 11px;
+      margin-bottom: 8px;
+    }
+    tbody td {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: none;
+      padding: 4px 0;
+      text-align: left;
+      white-space: normal;
+    }
+    tbody td.num {
+      text-align: right;
+    }
+    tbody th.cell-name {
+      font-size: 13.5px;
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin-bottom: 4px;
+      text-align: left;
+    }
+    tbody td[data-label]::before {
+      content: attr(data-label);
+      color: var(--text-faint-solid);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .longest .lb {
+      margin-left: 6px;
+    }
   }
 </style>

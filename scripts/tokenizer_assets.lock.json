@@ -1,0 +1,20 @@
+{
+  "_about": "SHA-256 hashes of every file under public/tokenizers/ at the version that produced tests/fixtures/reference.json. fetch_tokenizers.mjs verifies downloads against these hashes; a mismatch means the upstream tokenizer changed (or a CDN returned a tampered file) — fail loudly rather than ship a quietly-broken vocab. Regenerate with `node scripts/update_lock.mjs` (or by hand) only when intentionally bumping a tokenizer; then re-run gen_reference.py and commit the updated reference.json together.",
+  "files": {
+    "cl100k.json": "9b9ea7feb9945beda9196f3691a3cc2d0f339aec498bbae285ce6aded387455c",
+    "deepseek/tokenizer.json": "621ac2e32d0dba658404412318818aaa8ce8cda492e59830109d8da6b517fb41",
+    "deepseek/tokenizer_config.json": "637bcd1a08cf7c772ce6a383196b22930921c79c3c73223c5afc0c7f41545546",
+    "gemma/tokenizer.json": "3f289bc05132635a8bc7aca7aa21255efd5e18f3710f43e3cdb96bcd41be4922",
+    "gemma/tokenizer_config.json": "fe5d3fb6a117764c66d7274b15df16660dcfe84795643fdbe512c502ab0cac9a",
+    "gpt2.json": "199cf7ee5013d4cd95015d672fdc9d9d8ebf942f69fc5ed424148add1f533493",
+    "llama3/tokenizer.json": "c05a3c2174e9edd5be19dc5a0748c42a9037bec2811ce062728bfd71f8702d78",
+    "llama3/tokenizer_config.json": "c058e1ff967585f08c1c4dc1577c68a825a482b38bc0b2bff059ab113bf603bf",
+    "mistral/tokenizer.json": "e11c71726323d33da7b8d6f6f269f1988931c0a52b7122bcdd8c05042974e0db",
+    "mistral/tokenizer_config.json": "9d00d5a5310d73664463a50abefe9646a7f42d3a55f590edc4e967ff33e3e1e5",
+    "mt5/tokenizer.json": "87a036c0dfd2d80e1202a7e2961aeee653ff63d67cd369b155c78a6e2003a390",
+    "mt5/tokenizer_config.json": "6d72398c110b76ba751c32713ef3f401737d589e9c05562feb5eae1d2a89506d",
+    "o200k.json": "de7eb511338b0e23589a3cae2dceb8dd66c2a9fd70dbf7ea778fd9df9f175d45",
+    "qwen3/tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+    "qwen3/tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101"
+  }
+}

@@ -9,7 +9,7 @@ carries it. Export the first ~5 seconds separately as the looping hero GIF.
 
 **0:00–0:06 — Open cold.**
 Load the live URL. The page opens on the preloaded English+Chinese sample;
-the seven tokenizer rows fill in (OpenAI ones first, the larger Hugging Face
+the nine tokenizer rows fill in (OpenAI ones first, the larger Hugging Face
 ones a beat later — this is the streaming load, let it show). Do not narrate;
 let the rows populate.
 

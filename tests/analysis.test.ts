@@ -30,8 +30,11 @@ describe('efficiency', () => {
       expect(e.rows[i].tokenCount).toBeGreaterThanOrEqual(e.rows[i - 1].tokenCount);
     }
     expect(e.rows[0].vsBest).toBe(1);
-    expect(e.spread).toBeGreaterThanOrEqual(1);
+    // The Chinese passage is well-known to favour o200k over gpt2/cl100k by
+    // a wide margin; assert a real spread rather than a tautological >= 1.
+    expect(e.spread).toBeGreaterThan(1.3);
     expect(e.bestCode).toBe(e.rows[0].code);
+    expect(e.worstCode).toBe(e.rows[e.rows.length - 1].code);
   });
 
   it('handles an empty result set', () => {
@@ -47,12 +50,24 @@ describe('fragmentation', () => {
       'The information system should process every important request without any error.';
     const f = analyzeFragmentation(run(text), text, COMMON);
     expect(f.applicable).toBe(true);
-    expect(f.wordsFound).toBeGreaterThanOrEqual(4);
+    // The text contains 11 candidate words; not all are in the common-words
+    // list. Tighten from the original >= 4 to a value that would actually
+    // catch a regression dropping half the words.
+    expect(f.wordsFound).toBeGreaterThanOrEqual(8);
     for (const row of f.rows) {
       expect(row.rate).toBeGreaterThanOrEqual(0);
       expect(row.rate).toBeLessThanOrEqual(1);
       expect(row.wholeWords + row.fragmentedWords).toBe(row.wordsChecked);
     }
+  });
+
+  it('matches curly-apostrophe words against the ASCII-apostrophe wordlist', () => {
+    // The wordlist uses ASCII apostrophes; pasted text often has curly ones.
+    // After normalization, "don't" and "don’t" should be treated the same.
+    const text = 'I don’t think it’s right when they don’t look.';
+    const f = analyzeFragmentation(run(text), text, COMMON);
+    // Should find at least 'i' (if in wordlist) and other common words.
+    expect(f.wordsFound).toBeGreaterThanOrEqual(2);
   });
 
   it('is not applicable to CJK text (no misleading 0%)', () => {

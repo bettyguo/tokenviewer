@@ -43,10 +43,3 @@ export function tokenSegments(token: Token): Segment[] {
   }
   return segments;
 }
-
-/** A compact, human-readable label for a token's content (used in tooltips). */
-export function tokenLabel(token: Token): string {
-  if (token.kind === 'partial') return `bytes ${bytesToHex(token.bytes)}`;
-  if (token.kind === 'special') return token.text;
-  return JSON.stringify(token.text);
-}

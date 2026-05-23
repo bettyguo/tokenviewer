@@ -5,27 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Compare how LLM tokenizers segment the same text, side by side, in your browser."
+      content="See how 9 LLM tokenizers (GPT-2, cl100k, o200k, Llama 3, DeepSeek-V3, Qwen3, Gemma 2, Mistral, mT5) segment the same text — side by side, in your browser. No text leaves the page."
     />
     <meta name="color-scheme" content="dark light" />
-    <title>tokenviewer — compare LLM tokenizers</title>
+    <meta name="theme-color" content="#0a0b0e" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)" />
+    <title>tokenviewer — compare nine LLM tokenizers side by side</title>
 
-    <!-- Social preview. og-image.png ships in public/; crawlers resolve it
-         against the page URL. Replace with a 1200x630 card if desired. -->
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href="https://bettyguo.github.io/tokenviewer/" />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="./fonts/jetbrains-mono-regular.woff2"
+      crossorigin
+    />
+
+    <!-- Open Graph / Twitter card. URLs are absolute so a share without a
+         trailing slash still resolves the og:image correctly. -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="tokenviewer — compare LLM tokenizers" />
+    <meta property="og:site_name" content="tokenviewer" />
+    <meta property="og:url" content="https://bettyguo.github.io/tokenviewer/" />
+    <meta property="og:title" content="tokenviewer — compare nine LLM tokenizers" />
     <meta
       property="og:description"
-      content="See how 7 LLM tokenizers segment the same text, side by side, with cross-tokenizer efficiency analysis. Runs entirely in your browser."
+      content="See how 9 LLM tokenizers segment the same text, side by side. Runs entirely in your browser — no text leaves the page."
     />
-    <meta property="og:image" content="og-image.png" />
+    <meta
+      property="og:image"
+      content="https://bettyguo.github.io/tokenviewer/og-image.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="A Chinese passage tokenized by nine tokenizers stacked vertically. GPT-2 spends 175 tokens; DeepSeek-V3 spends 51 on the same text."
+    />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="tokenviewer — compare LLM tokenizers" />
+    <meta name="twitter:title" content="tokenviewer — compare nine LLM tokenizers" />
     <meta
       name="twitter:description"
-      content="See how 7 LLM tokenizers segment the same text, side by side. Runs entirely in your browser — no text leaves the page."
+      content="See how 9 LLM tokenizers segment the same text, side by side. Runs in your browser; no text leaves the page."
     />
-    <meta name="twitter:image" content="og-image.png" />
+    <meta
+      name="twitter:image"
+      content="https://bettyguo.github.io/tokenviewer/og-image.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="A Chinese passage tokenized by nine tokenizers stacked vertically. GPT-2 spends 175 tokens; DeepSeek-V3 spends 51 on the same text."
+    />
+
+    <!-- Inline preamble: eliminates first-paint flash before the bundled CSS
+         loads. Mirrors --bg / --text from src/styles/theme.css for both
+         themes; updated together when the theme changes. -->
+    <style>
+      :root {
+        --__bg: #0a0b0e;
+        --__fg: #e7e9ed;
+      }
+      [data-theme='light'] {
+        --__bg: #f6f5f1;
+        --__fg: #1c1d22;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--__bg);
+        color: var(--__fg);
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+    </style>
+
     <script>
       // Apply the saved theme before first paint to avoid a flash.
       try {
@@ -37,9 +98,43 @@
         /* localStorage unavailable; keep default */
       }
     </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "tokenviewer",
+        "url": "https://bettyguo.github.io/tokenviewer/",
+        "description": "Interactive in-browser comparison of nine LLM tokenizers with cross-tokenizer efficiency analysis.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "license": "https://opensource.org/licenses/MIT"
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
+    <noscript>
+      <main
+        style="
+          max-width: 640px;
+          margin: 80px auto;
+          padding: 0 22px;
+          font: 14px system-ui;
+        "
+      >
+        <h1 style="font-family: ui-monospace, monospace">tokenviewer</h1>
+        <p>
+          An interactive comparison of how nine LLM tokenizers segment text. Enable
+          JavaScript to run it — everything happens in your browser, no text is sent to
+          a server.
+        </p>
+        <p>
+          <a href="https://github.com/bettyguo/tokenviewer">Source on GitHub →</a>
+        </p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

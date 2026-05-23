@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import type { TokenizerResult, Token } from '../tokenizers/base';
   import { bytesToHex } from '../tokenizers/base';
   import type { TokenizerSpec } from '../tokenizers/registry';
@@ -13,7 +14,12 @@
   }: { spec: TokenizerSpec; result: TokenizerResult; showIds: boolean } = $props();
 
   let collapsed = $state(false);
-  let hover = $state<{ token: Token; x: number; y: number } | null>(null);
+  let hover = $state<{
+    token: Token;
+    x: number;
+    y: number;
+    flip: boolean;
+  } | null>(null);
 
   // Cap rendered spans so a very large paste cannot build an unbounded DOM.
   // Token counts in the comparison table remain exact regardless.
@@ -24,38 +30,73 @@
   // Hover shows the tooltip on desktop; mobile browsers fire `mouseenter` on
   // tap for elements with a hover style, so tap-to-inspect works there too.
   // The "token ids" toggle is the keyboard-accessible path to per-token ids.
+  const TIP_HALF_WIDTH = 170;
+
+  // Mobile/touch users can open the tooltip by tapping a token (taps fire
+  // `mouseenter` on hoverable elements) but have no clean way to dismiss it
+  // without tapping another token. Dismiss on any pointerdown outside a
+  // `.tok` so taps anywhere else hide the tip.
+  onMount(() => {
+    const off = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target?.closest('.tok')) hover = null;
+    };
+    document.addEventListener('pointerdown', off);
+    return () => document.removeEventListener('pointerdown', off);
+  });
+
   function showTip(token: Token, event: Event): void {
     const r = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    hover = { token, x: r.left + r.width / 2, y: r.top };
+    // If the token is near the viewport top, flip the tooltip below it
+    // instead of above so the tooltip never clips off-screen.
+    const flip = r.top < 90;
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 1024;
+    const cx = r.left + r.width / 2;
+    hover = {
+      token,
+      // Clamp so the tooltip doesn't run off the side on narrow viewports.
+      x: Math.min(Math.max(cx, TIP_HALF_WIDTH + 8), vw - TIP_HALF_WIDTH - 8),
+      y: flip ? r.bottom : r.top,
+      flip,
+    };
   }
 </script>
 
-<div class="row" style:--hue={tokenizerHue(spec.code)}>
+<div class="row" style:--hue={tokenizerHue(spec.code)} role="listitem">
   <div class="row-head">
     <button
       class="rh-main"
       onclick={() => (collapsed = !collapsed)}
       aria-expanded={!collapsed}
+      aria-label="{spec.name}: {result.error
+        ? 'error'
+        : `${result.tokens.length} tokens, ${result.byteLength > 0 && result.tokens.length > 0 ? (result.byteLength / result.tokens.length).toFixed(2) : '0'} bytes per token`}. Toggle segmentation."
     >
-      <span class="chev" class:open={!collapsed}><Icon name="chevron" size={13} /></span
+      <span class="chev" class:open={!collapsed} aria-hidden="true"
+        ><Icon name="chevron" size={13} /></span
       >
-      <span class="key"></span>
       <span class="rname mono">{spec.name}</span>
       <span class="rmeta"
         >{spec.algorithm} · vocab {spec.vocabSize.toLocaleString()}</span
       >
     </button>
-    <span class="count mono">
+    <span class="count mono" aria-hidden="true">
       {#if result.error}
         <span class="rerr"><Icon name="alert" size={12} /> {result.error}</span>
       {:else}
-        <strong>{result.tokens.length.toLocaleString()}</strong> tokens
+        <strong>{result.tokens.length.toLocaleString()}</strong>
+        <span class="cu">tokens</span>
+        {#if result.byteLength > 0 && result.tokens.length > 0}
+          <span class="cbpt"
+            >· {(result.byteLength / result.tokens.length).toFixed(2)} B/tok</span
+          >
+        {/if}
       {/if}
     </span>
   </div>
 
   {#if !collapsed && !result.error}
-    <div class="stream mono" class:ids={showIds}>
+    <div class="stream mono" dir="auto" aria-label="Token stream for {spec.name}">
       {#each shown as token (token.index)}
         {@const segs = tokenSegments(token)}
         <!-- The hover tooltip is a non-essential enhancement: the same token
@@ -92,7 +133,13 @@
 
 {#if hover}
   {@const t = hover.token}
-  <div class="tip mono" style:left="{hover.x}px" style:top="{hover.y}px" role="tooltip">
+  <div
+    class="tip mono"
+    class:flip={hover.flip}
+    style:left="{hover.x}px"
+    style:top="{hover.y}px"
+    role="tooltip"
+  >
     <div class="tip-row"><span>id</span><b>{t.id}</b></div>
     <div class="tip-row"><span>index</span><b>{t.index}</b></div>
     <div class="tip-row">
@@ -108,7 +155,8 @@
 <style>
   .row {
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-left: 3px solid var(--hue);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
     background: var(--bg-raised);
     overflow: hidden;
   }
@@ -117,13 +165,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 8px 12px;
+    padding: 10px 14px;
     border-bottom: 1px solid var(--border);
   }
   .rh-main {
     display: flex;
-    align-items: center;
-    gap: 9px;
+    align-items: baseline;
+    gap: 10px;
     background: none;
     border: none;
     padding: 0;
@@ -134,21 +182,16 @@
   .chev {
     color: var(--text-faint-solid);
     display: inline-flex;
+    align-self: center;
     transition: transform var(--ms-100);
   }
   .chev.open {
     transform: rotate(90deg);
   }
-  .key {
-    width: 11px;
-    height: 11px;
-    border-radius: 3px;
-    background: var(--hue);
-    flex-shrink: 0;
-  }
   .rname {
-    font-size: 13px;
+    font-size: 14.5px;
     font-weight: 500;
+    color: var(--text);
   }
   .rmeta {
     font-size: 11px;
@@ -161,10 +204,24 @@
     font-size: 12px;
     color: var(--text-dim);
     white-space: nowrap;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
   }
   .count strong {
     color: var(--text);
     font-weight: 600;
+    font-size: 15.5px;
+  }
+  .cu {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    text-transform: lowercase;
+    letter-spacing: 0.04em;
+  }
+  .cbpt {
+    font-size: 11px;
+    color: var(--text-faint-solid);
   }
   .rerr {
     color: var(--warn);
@@ -173,20 +230,24 @@
     align-items: center;
   }
   .stream {
-    padding: 11px 12px;
+    padding: 13px 14px;
     font-size: 13.5px;
     line-height: 2.1;
     white-space: pre-wrap;
     word-break: break-word;
     background: var(--bg-inset);
   }
-  /* Hue at a higher opacity for separability, plus a 2px gap between tokens
-     so a boundary is visible without relying on color (colorblind-safe). */
+  /* Hue at theme-dependent opacity for separability, plus a 2px gap between
+     tokens so a boundary is visible without relying on color (colorblind-safe). */
   .tok {
     border-radius: 3px;
     padding: 2px 1px;
     margin-right: 2px;
-    background: color-mix(in srgb, var(--c) 42%, transparent);
+    background: color-mix(
+      in srgb,
+      var(--c) calc(var(--tok-opacity) * 100%),
+      transparent
+    );
     box-shadow: inset 0 -2px 0 -1px color-mix(in srgb, var(--c) 85%, transparent);
     cursor: default;
     transition: background var(--ms-100);
@@ -196,7 +257,11 @@
   }
   .k-whitespace,
   .k-partial {
-    background: color-mix(in srgb, var(--c) 28%, transparent);
+    background: color-mix(
+      in srgb,
+      var(--c) calc(var(--tok-opacity) * 65%),
+      transparent
+    );
   }
   .ws {
     color: var(--text-faint-solid);
@@ -212,14 +277,11 @@
     font-weight: 500;
   }
   .tid {
-    font-size: 8.5px;
+    font-size: 10.5px;
     color: var(--text-faint-solid);
     vertical-align: sub;
     margin-left: 1px;
     user-select: none;
-  }
-  .ids .tok {
-    margin-right: 2px;
   }
   .more {
     color: var(--text-faint-solid);
@@ -239,6 +301,9 @@
     font-size: 11px;
     min-width: 150px;
     max-width: 320px;
+  }
+  .tip.flip {
+    transform: translate(-50%, 8px);
   }
   .tip-row {
     display: flex;

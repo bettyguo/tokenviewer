@@ -7,7 +7,7 @@ Rust fast-tokenizer) loading the exact `tokenizer.json` the app ships. The JS
 adapters in `tests/tokenizers.test.ts` are then asserted to reproduce these
 ids exactly.
 
-Run:  pip install tiktoken tokenizers  &&  python scripts/gen_reference.py
+Run:  pip install -r scripts/requirements.txt  &&  python scripts/gen_reference.py
 Requires `public/tokenizers/` to be populated (npm run fetch:tokenizers).
 """
 import json
@@ -25,10 +25,11 @@ TEXTS = {
     "code": "def add(a: int, b: int) -> int:\n    return a + b",
     "whitespace": "a\n\nb\tc   d",
     "unicode": "café 🌍 naïve — résumé",
+    "emoji": "Family 👨‍👩‍👧‍👦, flag 🇯🇵, skin 👍🏽.",
 }
 
 TIKTOKEN = {"gpt2": "gpt2", "cl100k": "cl100k_base", "o200k": "o200k_base"}
-HF = ["llama3", "deepseek", "qwen3", "mt5"]
+HF = ["llama3", "deepseek", "qwen3", "mt5", "gemma", "mistral"]
 
 
 def main() -> None:

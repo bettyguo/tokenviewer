@@ -17,7 +17,7 @@ npm run dev
 ```sh
 npm run check     # type-check (browser + node)
 npm run lint      # prettier
-npm test          # 118 assertions, incl. canonical tokenizer verification
+npm test          # 177 tests, incl. canonical tokenizer verification
 npm run build
 ```
 
@@ -35,8 +35,8 @@ adapter code.
 2. **Wire the download.** For an HF tokenizer, add `code -> repo` to the `HF`
    map in `scripts/fetch_tokenizers.mjs`, then run `npm run fetch:tokenizers`.
 3. **Verify it.** Add the tokenizer to `scripts/gen_reference.py`, run
-   `pip install tiktoken tokenizers && python scripts/gen_reference.py`, and
-   run `npm test`. The suite asserts the JS adapter reproduces the canonical
+   `pip install -r scripts/requirements.txt && python scripts/gen_reference.py`,
+   and run `npm test`. The suite asserts the JS adapter reproduces the canonical
    token ids exactly. A tokenizer without this verification will not be
    merged — no mocked or unverified tokenizers (see the project's anti-pattern
    list in the master brief).

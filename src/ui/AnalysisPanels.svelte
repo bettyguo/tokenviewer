@@ -22,8 +22,8 @@
   const stripChars = $derived(Array.from(app.text).slice(0, 480));
 </script>
 
-<section class="ap">
-  <span class="eyebrow">Analysis</span>
+<section class="ap" aria-labelledby="ap-h">
+  <h2 id="ap-h" class="eyebrow">Analysis</h2>
   <div class="ap-list">
     <!-- Efficiency ------------------------------------------------------ -->
     <Panel

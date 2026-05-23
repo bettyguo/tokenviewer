@@ -26,20 +26,30 @@
   const words = $derived(app.text.trim() ? app.text.trim().split(/\s+/u).length : 0);
 
   let fileInput: HTMLInputElement;
+  const MAX_FILE_BYTES = 1_000_000;
 
   async function onFile(event: Event): Promise<void> {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    const text = await file.text();
-    app.loadSample(text);
-    if (fileInput) fileInput.value = '';
+    try {
+      if (file.size > MAX_FILE_BYTES) {
+        app.notice = `File too large (${(file.size / 1024).toFixed(0)} KB) — keep it under 1 MB.`;
+        return;
+      }
+      const text = await file.text();
+      app.loadSample(text);
+    } catch (err) {
+      app.notice = `Could not read file: ${err instanceof Error ? err.message : String(err)}`;
+    } finally {
+      if (fileInput) fileInput.value = '';
+    }
   }
 </script>
 
 <section class="panel input-panel">
   <div class="ip-head">
-    <span class="eyebrow">Input</span>
-    <span class="counts mono">
+    <h2 class="eyebrow">Input</h2>
+    <span id="ip-counts" class="counts mono">
       {chars.toLocaleString()} chars · {formatBytes(bytes)} · {words.toLocaleString()} words
     </span>
   </div>
@@ -49,8 +59,10 @@
     spellcheck="false"
     autocapitalize="off"
     autocomplete="off"
+    dir="auto"
     placeholder="Paste or type text to tokenize…"
     aria-label="Text to tokenize"
+    aria-describedby="ip-counts"
     value={app.text}
     oninput={(e) => app.setText((e.currentTarget as HTMLTextAreaElement).value)}
   ></textarea>
@@ -93,11 +105,13 @@
   </div>
 
   {#if app.notice}
-    <div class="notice" role="status">
+    <div class="notice" role="status" aria-live="polite">
       <Icon name="alert" size={13} />
       <span>{app.notice}</span>
-      <button class="notice-x" onclick={() => (app.notice = '')} aria-label="Dismiss"
-        >×</button
+      <button
+        class="notice-x"
+        onclick={() => (app.notice = '')}
+        aria-label="Dismiss notice">×</button
       >
     </div>
   {/if}
@@ -163,10 +177,21 @@
     background: var(--bg-raised);
     border: 1px solid var(--border);
     border-radius: var(--r-sm);
-    padding: 4px 9px;
+    padding: 5px 10px;
     font-size: 12px;
     color: var(--text-dim);
     transition: all var(--ms-100);
+    min-height: 28px;
+  }
+  @media (max-width: 600px) {
+    .chip-btn {
+      padding: 11px 14px;
+      font-size: 13px;
+      min-height: 44px;
+    }
+    .tb-label {
+      display: none;
+    }
   }
   .chip-btn:hover:not(:disabled) {
     color: var(--text);
@@ -198,8 +223,15 @@
     background: none;
     border: none;
     color: var(--text-dim);
-    font-size: 16px;
+    font-size: 18px;
     line-height: 1;
-    padding: 0 4px;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 4px 8px;
+    border-radius: var(--r-sm);
+  }
+  .notice-x:hover {
+    color: var(--text);
+    background: var(--bg-hover);
   }
 </style>

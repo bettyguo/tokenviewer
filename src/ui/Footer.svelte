@@ -5,7 +5,7 @@
 <footer class="ft">
   <div class="ft-grid">
     <div>
-      <span class="eyebrow">Privacy</span>
+      <h2 class="eyebrow">Privacy</h2>
       <p>
         Every tokenizer runs in your browser. Input text is never sent to a server.
         There is no analytics, no telemetry, and no third-party script — only
@@ -13,9 +13,9 @@
       </p>
     </div>
     <div>
-      <span class="eyebrow">Built with</span>
+      <h2 class="eyebrow">Built with</h2>
       <p>
-        <a href="https://github.com/openai/tiktoken" target="_blank" rel="noopener"
+        <a href="https://github.com/dqbd/tiktoken" target="_blank" rel="noopener"
           >js-tiktoken</a
         >
         for the OpenAI encodings and
@@ -27,7 +27,7 @@
       </p>
     </div>
     <div>
-      <span class="eyebrow">Project</span>
+      <h2 class="eyebrow">Project</h2>
       <p>
         <a href={REPO_URL} target="_blank" rel="noopener">Source &amp; docs on GitHub</a
         >. MIT licensed. Contributions — new tokenizers, gallery samples — welcome.
@@ -35,8 +35,7 @@
     </div>
   </div>
   <p class="ft-note mono">
-    tokenviewer · working name, not final · no affiliation with OpenAI, Meta, DeepSeek,
-    Alibaba, or Google
+    tokenviewer · no affiliation with OpenAI, Meta, DeepSeek, Alibaba, or Google
   </p>
 </footer>
 

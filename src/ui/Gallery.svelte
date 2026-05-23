@@ -4,8 +4,8 @@
   let { app }: { app: AppState } = $props();
 </script>
 
-<section class="gallery">
-  <span class="eyebrow">Gallery</span>
+<section class="gallery" aria-labelledby="gal-h">
+  <h2 id="gal-h" class="eyebrow">Gallery</h2>
   <p class="g-sub">
     Curated inputs, each chosen to make one cross-tokenizer difference obvious. Loading
     a card replaces the input above.
@@ -18,7 +18,7 @@
           <span class="cat mono">{sample.category}</span>
         </div>
         <p class="why">{sample.why}</p>
-        <code class="preview mono"
+        <code class="preview mono" dir="auto"
           >{sample.text.slice(0, 84)}{sample.text.length > 84 ? '…' : ''}</code
         >
       </button>

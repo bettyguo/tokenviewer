@@ -314,3 +314,491 @@ All six phases logged. Final-deliverable checklist (master brief §9):
   environment. `DEMO_SCRIPT.md` specifies the recording for a human.
 - Cross-browser testing covered Chromium and Firefox (both clean); Safari
   was not available to test.
+
+---
+
+## Stretch — added Gemma 2 and Mistral tekken (complete)
+
+With the must-fix list cleared and Phase 6 done, the budget bought the audit
+item-11 stretch: **two more tokenizers, taking the set from 7 to 9.**
+
+- **Gemma 2** (`google/gemma-2-2b` via the public `Xenova/gemma2-tokenizer`
+  mirror; the original is gated). 256k SentencePiece BPE — distinct from mT5's
+  unigram, so the set now has two SP algorithm variants.
+- **Mistral (tekken)** (`mistralai/Mistral-Nemo-Base-2407`). 131k byte-level
+  tiktoken-derived BPE, the 2024 tekken format.
+
+Both adapters pass the canonical-reference test suite (28 new assertions
+across the existing fixture strings) and the precompute byte-roundtrip check.
+Updated baseline figures: English prose 60–77 (was 61–77), Arabic 65–213
+(was 70–213); the Swahili-vs-best-English fairness gap widened to 38%.
+146 tests passing; bundle still well under budget. README, index.html OG meta,
+and the launch artifacts (BLOG_POST, X_THREAD, HN_SUBMISSION, DEMO_SCRIPT)
+updated to "nine tokenizers" with the refreshed numbers.
+
+Also addressed in this pass:
+
+- **Audit item 9** (tooltip clipping at viewport top) — the tooltip now flips
+  below the token when there is no room above.
+- **Audit item 15** (heat shading ignored the metric toggle) — heat is now
+  driven by the active metric (lower-is-worse for tokens, higher-is-better
+  for bytes/token).
+
+Three audit items remain deferred: mobile card-list tables (7), narrower
+test corpus (12), and setup-step docs (16, mostly covered by README).
+
+---
+
+## Closing audit item 7 — mobile card-list tables (complete)
+
+The comparison table now reflows below 600 px into per-tokenizer cards, each
+carrying the same six fields (Tokens, Chars/tok, Bytes/tok, Word frag.,
+Longest token, plus the tokenizer name as a card header). No data is lost,
+nothing has to scroll horizontally, and the colored hue dot still keys each
+card to its row. Implemented via a single CSS `@media (max-width: 600px)`
+block in `ComparisonTable.svelte` driven by `data-label` attributes on each
+`<td>`; no template duplication. Verified at 390 px — see
+`docs/screenshots/mobile-ct.png`.
+
+The reference-corpus table (10 columns × 9 tokenizers) was left as
+horizontal scroll on mobile — a card list there would lose the at-a-glance
+heat-shaded comparison that is the whole point of that section.
+
+Playwright was reinstated as a devDep so the smoke test "just works" for
+contributors; the runtime dependency list (3 packages) is unchanged. Final
+state: 9 tokenizers, 146 tests, 0 warnings, 0 errors, mobile cards working.
+
+Screenshots refreshed to show all 9 rows:
+`docs/screenshots/{home-dark,home-light,hero-chinese,mobile,mobile-ct}.png`.
+
+---
+
+## Post-launch additions — CLI + closing audit item 12
+
+With everything else done, three more things shipped:
+
+**Audit item 12 (broader test corpus) — closed.**
+
+- Added an emoji/ZWJ fixture (`Family 👨‍👩‍👧‍👦, flag 🇯🇵, skin 👍🏽.`) to
+  `scripts/gen_reference.py`. The canonical-id assertions extend to it; every
+  tokenizer reproduces the reference exactly even on ZWJ-joined sequences.
+- New `tests/classification.test.ts` pins the four token kinds: `partial`
+  shows up for GPT-2 on `你好` (sub-character byte fragments — the visual
+  signature of the app) and does NOT for o200k on the same input;
+  `whitespace` is detected for newline-only tokens; pure ASCII produces only
+  `text`/`whitespace`; partial-token bytes are recoverable as hex with the
+  expected UTF-8 continuation/lead-byte high bit.
+- Test count: **168** (up from 146).
+
+**Reference-corpus third finding** — the OpenAI generational improvement on
+Chinese is now surfaced dynamically: "Within OpenAI alone, the GPT-2 → o200k
+progression cut the Chinese passage from 175 tokens to 75 — a 57% drop across
+tokenizer generations, with no model change." Computed from the committed data
+so it cannot drift.
+
+**Stretch goal — the CLI is shipped.**
+
+`bin/tokenviewer.ts` is a thin Node front-end over the same verified adapters
+the web app uses. Default output is TSV (`code\ttokens\tchars/tok\tbytes/tok`)
+so it pipes cleanly into `awk`, `sort`, and `jq`; `--format table` is
+human-readable and `--format json [--detail]` is structured. Stdin is read
+automatically when the input is piped; `-f path` reads from a file; positional
+args are joined as the text. `--list` enumerates available tokenizers.
+
+```sh
+echo "你好,世界!" | npm run tokenviewer
+# gpt2     7  1.14  1.86
+# o200k    3  2.67  4.33
+# ...
+```
+
+The CLI doesn't need a separate build — `tsx` (already a devDep) handles the
+TypeScript at runtime, and the entry is wired as `npm run tokenviewer`. The
+README has a new "Command-line interface" section; the roadmap entry has been
+replaced (the CLI is no longer future-work).
+
+**Final-final state:** 9 tokenizers, **168** tests passing, `npm run check`
+0/0, lint clean, build clean. Two audit items remain explicitly deferred: the
+reference-corpus mobile card-list (item 7's sister case — the comparison table
+is done, the reference table stays scroll-x by design), and CONTRIBUTING-level
+polish of item 16 (covered well enough by README + CONTRIBUTING already).
+
+---
+
+## Polish pass — five parallel audits, eleven execution iterations (2026-05-22)
+
+Ran a deep audit / revise / optimize cycle on the post-launch state. Five
+specialized audits were spawned in parallel against non-overlapping slices:
+README + cross-doc factual check; source-code correctness; tests + CI; site
+SEO / social-preview / perf; visual UI via screenshots. Combined they
+surfaced ~50 actionable items. A second-pass audit confirmed the results
+after revision. Numbers and claims below all check against the committed
+data; nothing was invented.
+
+**Launch blockers cleared.**
+
+- `OWNER` placeholders standardized everywhere a real GitHub account is
+  needed: `package.json` (`homepage`, `repository.url`), `src/ui/Header.svelte`
+  (`REPO_URL`), `index.html` (canonical, og:url, og:image absolute URL,
+  JSON-LD), `README.md` (badges + citation), launch docs. A one-shot
+  substitution script `scripts/set_repo_url.mjs` rewrites the lot in one
+  command before the first deploy — turns a deferred chore into 5 seconds.
+- `README.md:178` — js-tiktoken link pointed at `openai/tiktoken` (the
+  Python repo). Corrected to `dqbd/tiktoken`.
+- `docs/launch/BLOG_POST.md:102` — stale Arabic row (`70 | 3.04×`) from the
+  pre-Gemma/Mistral corpus refresh, fixed to `65 | 3.28×`.
+- `CONTRIBUTING.md:20` — stale "118 assertions" → "168 tests."
+
+**Correctness fixes.**
+
+- Hash-decode race (`appState.svelte.ts:83-114`): a user typing during the
+  async gunzip of a long share-link blob could be silently overwritten on
+  resolve. Now snapshots `this.text` at call start and only applies the
+  decoded value if the user hasn't begun editing.
+- `reloadFromHash` (`appState.svelte.ts:107-125`): previously dropped the
+  `theme` parameter and never surfaced a "could not decode" notice on
+  back/forward. Both restored.
+- DecompressionStream guard (`encoding.ts:75-103`): a Chrome user could
+  share a `g`-prefixed link to a Safari ≤ 16.3 reader and trigger a
+  `ReferenceError`. The outer try/catch swallowed it, but the docs claimed a
+  pure-JS deflate fallback that did not exist; the decoder now throws a
+  clear "DecompressionStream is unavailable" which the existing catch
+  surfaces as a normal notice.
+- Base64URL padding (`encoding.ts:27-38`): some Android/WebView `atob`
+  implementations require padding. Padding is now restored before decode so
+  stripped-padding share links work everywhere.
+- Hash-codes filter (`encoding.ts:139-142`): tokenizer codes from a hash
+  are now intersected with the registry. A malicious or stale `t=evil` link
+  no longer puts unknown codes into `enabledCodes` and into the worker.
+- Stale results across toggle (`appState.svelte.ts:73-77`): a result for a
+  tokenizer the user disabled mid-flight no longer lands in `resultsByCode`.
+- Fragmentation `O(W·T)` → `O(W+T)` (`fragmentation.ts:42-58`): two-pointer
+  sweep over sorted occurrences and sorted tokens. Curly-apostrophe
+  normalization added so a pasted "don't" matches the ASCII wordlist.
+
+**Visual / UI polish (the changes that move every screenshot).**
+
+- 3px colored left rail on every tokenizer row (`TokenizerRow.svelte:155`).
+  Instantly identifies each row by hue at any zoom — the biggest single
+  readability win for the hero artifact.
+- Row name 13 → 14.5px, token count 12 → 15.5px / weight 600, with the
+  bytes-per-token figure on the same line. The headline metric is now the
+  most prominent text in each row, not a footnote.
+- "Segmentation" promoted from a 10.5px eyebrow to a real `<h2>` (17px)
+  with subtitle (`ComparisonView.svelte:14-21`). The hero section now
+  announces itself.
+- Wordmark 22 → 26-30px (responsive); tagline 13px-dim → 15px-text and
+  rewritten to a benefit-led line ("Nine LLM tokenizers, one paragraph —
+  see who pays the token tax."). Privacy-dot glow softened so it no longer
+  out-glows the brand.
+- Tokenizer palette cleanup (`coloring.ts:32`): three pairs of colliding
+  hues separated — gemma green → leaf green; mistral coral → clear red;
+  mt5 dusty lavender → clear violet. All nine rows now read as distinct
+  even at thumbnail size and under deuteranopia simulation.
+- Shell widens to 1240px on viewports ≥ 1400px (`App.svelte:46-51`).
+  Comparison rows get more horizontal room; reference-corpus table needs
+  less horizontal scroll.
+- A new `StatStrip` component between InputPanel and TokenizerSelector
+  shows a live cross-tokenizer summary the moment any text is tokenized:
+  `tokenizers · range · spread · cheapest · priciest`, with the spread
+  highlighted in accent color. The KPI most worth quoting is now visible
+  above the fold.
+- Default sample changed to mixed English + Chinese so the StatStrip's
+  spread number is non-trivial on first paint — visitors see "this is what
+  the tool is for" within one second.
+- Mobile chip targets bumped past 38px; "Samples" label hidden on narrow
+  viewports; spinner reduced-motion override added.
+
+**Theme tightening.**
+
+- `--text-faint-solid` bumped from `#616671` (3.6:1 dark) to `#7a7e88`
+  (5.0:1) — clears WCAG AA for the many places it appears (eyebrows,
+  hints, tooltip subtitles). Light counterpart bumped similarly.
+- `--warn` shifted out of the orange family (was `#e9764a`, hue-adjacent
+  to the amber `--accent`). Now red-pink in both themes so accent ≠ warn.
+- New CSS variables: `--gap-section`, `--gap-major` for vertical rhythm;
+  `--tok-opacity` (0.42 dark, 0.58 light) — token spans now look as
+  vivid on the cream light theme as they do on dark.
+- Panel separation strengthened — `--bg-raised` lifted ~10% so panels
+  no longer dissolve into the canvas on glossy displays.
+
+**SEO / social-preview / first-paint.**
+
+- 6-line inline CSS preamble in `<head>` mirroring `--bg`/`--text` for
+  both themes — eliminates the white flash on dark mode that the bundled
+  stylesheet's network round-trip used to leave visible.
+- `<link rel="preload">` for JetBrains Mono Regular, so the wordmark
+  doesn't flicker on font swap.
+- Favicon (SVG, three colored token bars on a dark canvas — ties to the
+  brand without needing a raster), `theme-color` meta for both themes,
+  Apple touch icon hook.
+- OG image URL is now absolute (`https://OWNER.github.io/tokenviewer/og-image.png`)
+  so a share link without a trailing slash doesn't 404 the card. Added
+  `og:url`, `og:site_name`, `og:image:width/height`, `og:image:alt`,
+  `twitter:image:alt`. The OG image content itself is unchanged and is
+  noted as worth rebuilding (a future task — the current image is a
+  vertical stack of token rows; at thumbnail size the wordmark is
+  unreadable).
+- JSON-LD `WebApplication` block for richer Google indexing of the live
+  demo, canonical link, sharper meta description name-dropping the
+  tokenizer keywords most searched.
+- `<noscript>` fallback so a JS-disabled visitor sees a one-paragraph
+  explanation and a link to the repo, not a blank page.
+- `public/404.html` (meta-refresh-to-root shim) and `public/robots.txt`.
+
+**CI / deploy hardening.**
+
+- `ci.yml` caches `public/tokenizers/` keyed on the fetch script's hash —
+  saves ~30-60s and ~40 MB per run. Adds a `Verify build output` step that
+  fails fast if `dist/index.html`, `dist/assets/`, `dist/tokenizers/`, or
+  `dist/fonts/` are missing.
+- `deploy-pages.yml` gates the deploy on `npm run check` + `npm test`
+  passing — a broken build can no longer ship to Pages while CI is red on
+  the same commit. `paths-ignore` for `**/*.md` so docs-only PRs don't
+  redeploy.
+- `scripts/requirements.txt` pins `tiktoken==0.8.0` + `tokenizers==0.20.3`
+  so regenerating `tests/fixtures/reference.json` on a fresh machine is
+  byte-deterministic. `gen_reference.py` and `CONTRIBUTING.md` updated to
+  use `pip install -r`.
+
+**Tests: 168 → 177.**
+
+- Encoding boundary tests: input at exactly `MAX_EMBED_BYTES` is embedded;
+  4000 CJK chars (≈ 12 KB UTF-8) is rejected (proves the cutoff measures
+  bytes not chars); a hash with `t=gpt2,evil,o200k` returns only the two
+  registered codes (the registry filter actually filters); a share link
+  with `=` padding stripped still round-trips (the `atob` re-padder works).
+- `tests/gallery.test.ts` — every gallery sample has the required
+  non-empty fields, unique IDs, ≥ 6 categories, texts under 1 KB. A future
+  PR that drops a `why` line will fail in CI rather than ship silently.
+- `tests/analysis.test.ts` — pinned the brittle `expect(spread).>= 1`
+  (tautological) to `> 1.3` (the Chinese passage genuinely splits
+  tokenizers by more than that); `wordsFound >= 4` (would pass a parser
+  bug dropping nine of eleven words) tightened to `>= 8`; added a curly-
+  apostrophe regression test that the wordlist normalization catches.
+
+**README — full overhaul.**
+
+The previous README was competent but buried its strongest signals. The
+new version (199 lines, vs the previous 198):
+
+- Leads with a sharper italic tagline directly under the H1 (an ML
+  engineer can decide whether to click into the demo in two seconds).
+- Four high-signal badges (MIT · CI · 177 tests · live demo) and a
+  one-line CTA row (Live demo · 30-second story · How it's verified ·
+  Privacy · CLI · Contributing).
+- Hero image immediately under the header with a load-bearing italic
+  caption preview-ing the headline finding.
+- A "30-second story" section with an ASCII bar chart of all nine
+  tokenizers on the canonical Chinese passage. The bar survives GitHub
+  markdown rendering (no image dependency). All numbers come straight
+  from `data/baseline_corpus_results.json` — never hand-entered.
+- Three findings — the multilingual spread, the Swahili-in-Latin-script
+  fairness gap, and the OpenAI generational drop (175 → 75, a 57% cut
+  with no model change). The third was already in the app per Phase 6 but
+  was missing from the README; it's the single most quotable
+  OpenAI-specific finding the project surfaces.
+- "How it compares" table (the strongest single differentiation moment in
+  the doc) promoted from line 117 to near the top, with `yes/no` cells
+  bolded for one-glance scanning.
+- "Supported tokenizers" preceded by a bolded canonical-verification
+  claim ("byte-for-byte against Python `tiktoken` / Rust `tokenizers`, on
+  the exact `tokenizer.json` the app ships — 177 tests").
+- The "Working name" placeholder blockquote that previously sat as the
+  second paragraph is gone — the project is committed to `tokenviewer`
+  in every file path, npm script, test description, and CLI command, so
+  the disclaimer was undermining its own seriousness. Same framing
+  removed from Footer.svelte, BLOG_POST.md, HN_SUBMISSION.md, X_THREAD.md.
+- "Try it" block with clear hierarchy: live demo → clone → CLI.
+- Citation block no longer carries the `note = {Working name}` line.
+
+**Hero alignment.**
+
+The previous gallery `zh-paragraph` text was ~10 chars shorter than the
+corpus `zh` reference text. The hero screenshot (generated from a smoke-
+test click of "Chinese: the token tax") therefore showed 151 / 43 token
+counts, while the README cited the corpus 175 / 51 numbers. Aligned the
+gallery text to the corpus exactly so the hero now shows the canonical
+175 / 51 spread the README claims — single source of truth.
+
+**Verification.**
+
+`npm run check` 0 errors / 0 warnings. `npm run lint` clean.
+`npm test` **177 passing**. `npm run build` clean — bundle: `index.js`
+104 KB, `index.css` 21 KB, `worker.js` 109 KB; `index.html` 5 KB after
+the new meta tags (was 1.9 KB). `npm run smoke` PASSED — 9 tokenizer
+rows, gallery click shows the full 175 → 51 spread, theme toggle, no
+console errors.
+
+**Iter 12 — four follow-ons addressed in the same cycle.**
+
+A. **OG social card regenerated.** Built `scripts/og-card.html` — a
+self-contained 1200×630 layout with the wordmark, tagline, a horizontal
+bar chart of all nine tokenizers on the Chinese passage (numbers straight
+from the corpus JSON), and the GPT-2-vs-DeepSeek punchline. Drives
+`scripts/gen_og.mjs` (Playwright) → `public/og-image.png`. The previous
+vertical-screenshot OG had an unreadable wordmark at the thumbnail size
+HN/Twitter render; the new card preserves the value prop down to ~400px
+wide. New `npm run og` script.
+
+B. **Smoke test promoted to CI.** Hardened first: replaced the two
+`waitForTimeout(N)` calls with `waitForFunction` predicates that wait on
+the actual signal (GPT-2 count > 150 for the Chinese sample; `data-theme`
+= light after the toggle click). Added a canonical assertion that the
+Chinese sample produces exactly `Math.max === 175` and `Math.min === 51`
+— the two numbers the README headlines, so any tokenizer or gallery drift
+fails the build immediately. Added a smoke job to `.github/workflows/ci.yml`
+that runs after build, installs Chromium, runs `vite preview`, runs
+`npm run smoke`, and uploads `docs/screenshots/` on failure.
+
+C. **CLI tests.** Five new tests in `tests/cli.test.ts` (182 tests
+total): `--list` enumerates every code with exit 0; stdin emits TSV with
+GPT-2=2 tokens on "hello world"; `--format json` shape is stable
+(`{code, name, tokenCount, ...}`); `--detail` adds per-token data
+matching `tokenCount`; unknown tokenizer exits 2. Each spawn pays ~1-2s
+of tsx warm-up but the coverage gap was zero — these were the highest-
+value tests to add.
+
+D. **HF asset SHA lockfile.** New
+`scripts/tokenizer_assets.lock.json` pins SHA-256 for every file under
+`public/tokenizers/` (15 files). `fetch_tokenizers.mjs` now verifies
+every downloaded or cached file against the lock and throws with a clear
+"upstream tokenizer changed" message on mismatch. The reference-fixture
+test catches drift eventually, but the lock catches it at download time
+and pinpoints which file. New `scripts/update_lock.mjs` regenerates the
+lock for intentional bumps.
+
+**Final-final state (post-iter-12):** 9 tokenizers, **182** tests
+passing, `npm run check` 0/0, `npm run lint` clean, `npm run build`
+clean (104 KB JS + 21 KB CSS + 109 KB worker; `index.html` 5.16 KB with
+all the new meta). `npm run smoke` PASSED with the canonical 175/51
+assertion live. `npm run og` regenerates the social card reproducibly.
+`scripts/fetch_tokenizers.mjs` hash-verifies every tokenizer asset.
+
+**Iter 13 — GitHub Pages readiness + accessibility pass.**
+
+Two threads in parallel: (a) verify the build actually works at the
+subpath URL GitHub Pages will serve from, and (b) a thorough a11y audit
+with fixes. Both done.
+
+**A. Real Pages emulation locally.** New `scripts/pages_serve.mjs` serves
+`dist/` under `/tokenviewer/` — the exact subpath shape Pages project
+sites use (`https://<owner>.github.io/<repo>/`). This catches absolute-
+URL bugs that a root-served `vite preview` masks. All assets — index,
+favicon, fonts, OG image, tokenizer data, 404 shim — load with HTTP 200
+under the subpath. Vite's `base: './'` produces relative URLs that
+resolve correctly. `npm run pages:serve` available for contributors;
+the CI smoke step now runs against the pages-shape URL (`/tokenviewer/`)
+rather than root, so deploys cannot regress on subpath assumptions.
+
+**B. Accessibility audit + fixes.** Audit found ~16 real issues; all
+applied:
+
+- **Skip-link** as the first focusable element of the page
+  (`App.svelte:24`), visually hidden until `:focus`, gives keyboard
+  users a one-press jump past the header / input / selector to the main
+  comparison view. Without it, reaching the tokenizer rows took ~15
+  tabs.
+- **Heading hierarchy restored.** Wordmark is now `<h1>` (was a
+  `<div>`); tagline demoted to `<p>` (was the H1). Every section opener
+  (Input, Tokenizers, Segmentation already had it, Comparison,
+  Analysis, Reference corpus, Gallery, three Footer columns) is now an
+  `<h2 class="eyebrow">`. The `.eyebrow` rule got block-defaults reset
+  so the semantic upgrade is visually identical. The SR rotor now sees
+  one H1 + nine H2 across the page instead of one H1 + one H2.
+- **Caret in the wordmark** now `aria-hidden="true"` so VoiceOver/NVDA
+  don't read "underscore" as part of the brand.
+- **Live region for screen readers.** A new `.sr-only` (visually
+  hidden) live region in `ComparisonView` announces `Tokenized: gpt2
+175, cl100k 107, …` whenever results settle. Polite so it doesn't
+  interrupt typing.
+- **Tokenizer selector** chips now wrapped in
+  `role="group" aria-label="Active tokenizers (toggle to enable or
+disable)"` so the nine pressed/unpressed buttons read as a labelled
+  group.
+- **Comparison table** semantics: `<th scope="col" aria-sort="…">` on
+  sortable headers (announces "ascending" / "descending"), `<th
+scope="row">` on the tokenizer-name cells, `aria-hidden` on the hue
+  swatches.
+- **Reference-corpus metric toggle**: was two unconnected buttons; now
+  `role="radiogroup" aria-label="Reference-corpus metric"` with
+  `role="radio" aria-checked="…"` on each, so SR users hear the
+  selected metric.
+- **Per-row count summary**: the `aria-label` on the row's
+  expand/collapse button now reads `"GPT-2: 175 tokens, 1.40 bytes per
+token. Toggle segmentation."` — so a screen-reader user tabbing
+  through rows gets the headline number per row without expanding any
+  of them.
+- **Spinner**: was `aria-label` on a bare `<span>` (ignored by most
+  SRs). Now `role="status" aria-label="loading <tokenizer name>"`.
+- **Error indicator** badge in selector now `role="img" aria-label`d.
+- **`dir="auto"`** added to user-content surfaces: the textarea, every
+  token stream, gallery preview cells, reference-corpus table cells.
+  Arabic samples now render right-to-left correctly.
+- **Tooltip dismissal on touch.** Token tooltips opened on tap had no
+  way to dismiss without tapping another span. Added a document
+  `pointerdown` listener via `$effect`/`onMount` that clears `hover`
+  when the target is not a `.tok`.
+- **File-upload error handling.** `onFile` had no try/catch; binary
+  files or read errors silently broke. Now wrapped, with a 1 MB size
+  cap surfaced via the notice region; the textarea state is no longer
+  left in an inconsistent state on failure.
+- **Contrast bumps for WCAG AA.** `--text-faint-solid` was 4.13:1 dark
+  (4.31:1 light on `--bg-inset`) — both below the 4.5:1 AA bar for
+  body text. Bumped to `#8a8e98` (dark, ~5.2:1) and `#6a6c74` (light,
+  ~5.4:1). Used widely (`.rmeta`, `.cu/.cbpt`, `.tid`, `.ft-note`,
+  every eyebrow), so this fix moves the whole UI past AA.
+- **Touch targets.** `.ibtn` 32 → 36 desktop, 44 mobile (Apple HIG).
+  `.notice-x` 16 → 32 min. `.chip-btn` mobile 38 → 44. Tokenizer
+  chips mobile 40 → 44. Reference-corpus metric buttons 26 → 32
+  desktop / 40 mobile.
+- **`.tid` subscript** 8.5px → 10.5px (the old 8.5px was below most
+  a11y guidance even at the passing contrast ratio).
+- **Textarea** gained `dir="auto"` and `aria-describedby="ip-counts"`
+  so the char/byte/word counts are announced alongside the textarea
+  label.
+- **Empty rows live indicator.** The `.rows` container is now
+  `role="list"` with `aria-label="Per-tokenizer results"`; each row is
+  `role="listitem"`.
+- **Notice region** now has `role="status" aria-live="polite"` to
+  ensure consistent announcement of success/info notices.
+
+**Verification.**
+
+- `npm run check` 0/0/0.
+- `npm run lint` clean.
+- **182 tests passing** (177 + 5 CLI tests added in iter 12).
+- `npm run build` clean (105.65 KB JS / 21.99 KB CSS / 109.30 KB worker;
+  index.html 5.16 KB).
+- `npm run pages:serve` then `SMOKE_URL=http://localhost:8126/tokenviewer/
+npm run smoke` PASSED with the canonical 175/51 assertion live —
+  proves the app works correctly at the real GitHub Pages subpath URL,
+  not just root.
+- CI smoke step now uses the subpath emulator so every push is checked
+  against the deploy-shape URL.
+
+**Final-final-final state (post-iter-13):** 9 tokenizers · 182 tests
+passing · `check` 0/0 · lint clean · build clean · subpath smoke PASSED
+with canonical 175/51 assertion · skip link + semantic H1/H2 hierarchy
+
+- live regions for SR users + aria-sort/pressed/checked across all
+  interactive controls + dir="auto" for RTL · WCAG AA contrast across
+  both themes · 44 px touch targets on mobile · tooltip dismissal on
+  touch · file-upload error handling · OG card readable at thumbnail
+  size · HF asset hash-pinning · `pages_serve` for local Pages emulation.
+  Repo is ready for `node scripts/set_repo_url.mjs <github-owner>` →
+  first deploy.
+
+**Deferred (logged honestly, not glossed):**
+
+- Mobile screenshots (`docs/screenshots/mobile.png`, `mobile-ct.png`)
+  are from before the visual polish; refreshing them requires running
+  the smoke test at a mobile viewport.
+- ESLint is not yet wired up (only `prettier --check`). Worth adding
+  `typescript-eslint` + `eslint-plugin-svelte` as table stakes; not
+  done here because it would touch every file with new lint rules.
+- A favicon light-theme variant (the current SVG uses a dark canvas
+  that's still legible on any browser-tab chrome).
+- Automated a11y testing via `@axe-core/playwright` would let CI catch
+  regressions; the manual audit + smoke test give strong coverage
+  today but not as strong as Axe scanning every component state.

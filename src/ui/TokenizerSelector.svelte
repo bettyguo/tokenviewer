@@ -10,7 +10,7 @@
 
 <section class="selector">
   <div class="sel-head">
-    <span class="eyebrow">Tokenizers</span>
+    <h2 class="eyebrow">Tokenizers</h2>
     <div class="sel-actions">
       <button class="link-btn" onclick={() => app.setEnabledCodes([...allCodes])}
         >all</button
@@ -20,7 +20,11 @@
     </div>
   </div>
 
-  <div class="chips">
+  <div
+    class="chips"
+    role="group"
+    aria-label="Active tokenizers (toggle to enable or disable)"
+  >
     {#each TOKENIZERS as spec (spec.code)}
       {@const on = app.enabledCodes.includes(spec.code)}
       {@const st = app.status[spec.code]?.state}
@@ -35,13 +39,19 @@
           class="key"
           style:background={on ? tokenizerHue(spec.code) : 'transparent'}
           style:border-color={tokenizerHue(spec.code)}
+          aria-hidden="true"
         ></span>
         <span class="name mono">{spec.name}</span>
         <span class="algo">{spec.algorithm.replace('byte-level ', '')}</span>
         {#if on && st === 'loading'}
-          <span class="spin" aria-label="loading"></span>
+          <span class="spin" role="status" aria-label="loading {spec.name}"></span>
         {:else if on && st === 'error'}
-          <span class="err" title={app.status[spec.code]?.error}>!</span>
+          <span
+            class="err"
+            role="img"
+            aria-label="failed to load: {app.status[spec.code]?.error ?? 'error'}"
+            title={app.status[spec.code]?.error}>!</span
+          >
         {/if}
       </button>
     {/each}
@@ -50,7 +60,7 @@
 
 <style>
   .selector {
-    margin: 18px 0 6px;
+    margin: var(--gap-section) 0 6px;
   }
   .sel-head {
     display: flex;
@@ -100,10 +110,16 @@
     border-color: var(--border-strong);
   }
   .chip:not(.on) {
-    opacity: 0.55;
+    opacity: 0.5;
   }
   .chip:not(.on):hover {
     opacity: 0.85;
+  }
+  @media (max-width: 600px) {
+    .chip {
+      padding: 11px 14px;
+      min-height: 44px;
+    }
   }
   .key {
     width: 9px;
@@ -132,6 +148,12 @@
   @keyframes spin {
     to {
       transform: rotate(360deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spin {
+      animation: none;
+      border-top-color: var(--border-strong);
     }
   }
   .err {

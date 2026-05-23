@@ -29,14 +29,27 @@ export function tokenColor(index: number): string {
  * A stable accent hue per tokenizer code, used for selector chips and row
  * keying. Order matches docs/TOKENIZER_CHOICES.md.
  */
+/**
+ * One accent hue per tokenizer code. The set was tuned so that:
+ *  - no two hues collide under common-form colorblindness (Okabe-Ito family,
+ *    extended with a clear violet and red);
+ *  - gemma is distinct from cl100k (both Sentencepiece-adjacent greens
+ *    previously clashed);
+ *  - mistral is distinct from o200k and the page accent (all warm oranges
+ *    previously blurred into one family);
+ *  - mt5 is a clear violet rather than a dusty lavender that read the same
+ *    as the llama3 pink.
+ */
 export const TOKENIZER_HUES: Readonly<Record<string, string>> = {
-  gpt2: '#56b4e9',
-  cl100k: '#009e73',
-  o200k: '#e69f00',
-  llama3: '#cc79a7',
-  deepseek: '#d55e00',
-  qwen3: '#0072b2',
-  mt5: '#a78bda',
+  gpt2: '#56b4e9', // sky blue
+  cl100k: '#009e73', // bluish green
+  o200k: '#e69f00', // orange
+  llama3: '#cc79a7', // pink
+  deepseek: '#d55e00', // vermillion
+  qwen3: '#0072b2', // blue
+  mt5: '#9c6cff', // clear violet
+  gemma: '#7ec97a', // leaf green
+  mistral: '#e0656d', // clear red
 };
 
 export function tokenizerHue(code: string): string {

@@ -3,6 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
   workflow_dispatch:
 
 permissions:
@@ -27,8 +31,21 @@ jobs:
 
       - run: npm ci
 
+      - name: Cache tokenizer assets
+        uses: actions/cache@v4
+        with:
+          path: public/tokenizers
+          key: tokenizers-${{ hashFiles('scripts/fetch_tokenizers.mjs') }}
+
       - name: Fetch tokenizer + font assets
         run: npm run setup
+
+      # Deploy only if the suite still passes — never ship a broken build.
+      - name: Type-check
+        run: npm run check
+
+      - name: Test
+        run: npm test
 
       - name: Build
         run: npm run build

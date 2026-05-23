@@ -21,10 +21,6 @@ export class TokenizerEngine {
     return this.loaded.has(code);
   }
 
-  get(code: string): Tokenizer | undefined {
-    return this.loaded.get(code);
-  }
-
   /** Instantiate and register a tokenizer from its assets. */
   load(code: string, assets: TokenizerAssets): Tokenizer {
     const spec = TOKENIZER_BY_CODE.get(code);

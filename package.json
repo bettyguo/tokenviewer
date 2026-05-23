@@ -5,10 +5,10 @@
   "description": "Interactive in-browser comparison of how LLM tokenizers segment text, with cross-tokenizer efficiency analysis.",
   "type": "module",
   "license": "MIT",
-  "homepage": "https://example.github.io/tokenviewer/",
+  "homepage": "https://bettyguo.github.io/tokenviewer/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/example/tokenviewer"
+    "url": "https://github.com/bettyguo/tokenviewer"
   },
   "keywords": [
     "tokenizer",
@@ -30,7 +30,10 @@
     "lint": "prettier --check .",
     "format": "prettier --write .",
     "precompute": "tsx scripts/precompute_baseline.ts",
+    "tokenviewer": "tsx bin/tokenviewer.ts",
     "smoke": "node scripts/smoke.mjs",
+    "pages:serve": "node scripts/pages_serve.mjs",
+    "og": "node scripts/gen_og.mjs",
     "fetch:tokenizers": "node scripts/fetch_tokenizers.mjs",
     "fetch:assets": "node scripts/fetch_assets.mjs",
     "setup": "node scripts/fetch_assets.mjs && node scripts/fetch_tokenizers.mjs"
@@ -44,6 +47,7 @@
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@tsconfig/svelte": "^5.0.4",
     "@types/node": "^25.9.1",
+    "playwright": "^1.60.0",
     "prettier": "^3.4.2",
     "prettier-plugin-svelte": "^3.3.2",
     "svelte-check": "^4.1.4",

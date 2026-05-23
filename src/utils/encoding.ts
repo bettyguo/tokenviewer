@@ -4,6 +4,7 @@
  * and so the input text is never sent to a server. See
  * docs/STATIC_SITE_ROUTING.md.
  */
+import { TOKENIZER_BY_CODE } from '../tokenizers/registry';
 
 /** Largest input (UTF-8 bytes) embedded in a share link. */
 export const MAX_EMBED_BYTES = 8192;
@@ -24,7 +25,12 @@ function toBase64Url(bytes: Uint8Array): string {
 }
 
 function fromBase64Url(s: string): Uint8Array {
-  const padded = s.replace(/-/g, '+').replace(/_/g, '/');
+  // Older Android/WebView atob implementations require padding; modern ones tolerate
+  // its absence. Re-pad here so a stripped-padding share link decodes everywhere.
+  const remainder = s.length % 4;
+  const padded =
+    s.replace(/-/g, '+').replace(/_/g, '/') +
+    (remainder ? '='.repeat(4 - remainder) : '');
   const bin = atob(padded);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
@@ -67,6 +73,7 @@ async function gunzip(bytes: Uint8Array): Promise<Uint8Array> {
 }
 
 const hasCompression = typeof globalThis.CompressionStream !== 'undefined';
+const hasDecompression = typeof globalThis.DecompressionStream !== 'undefined';
 
 /**
  * Encode input text to a URL-safe string. Prefixed with `g` (gzip) or `r`
@@ -85,7 +92,12 @@ export async function encodeInput(text: string): Promise<string> {
 export async function decodeInput(encoded: string): Promise<string> {
   const tag = encoded[0];
   const body = fromBase64Url(encoded.slice(1));
-  if (tag === 'g') return utf8d.decode(await gunzip(body));
+  if (tag === 'g') {
+    if (!hasDecompression) {
+      throw new Error('DecompressionStream is unavailable in this browser');
+    }
+    return utf8d.decode(await gunzip(body));
+  }
   if (tag === 'r') return utf8d.decode(body);
   throw new Error('unknown input encoding tag');
 }
@@ -125,7 +137,9 @@ export async function decodeStateFromHash(hash: string): Promise<Partial<ShareSt
     }
   }
   const t = params.get('t');
-  if (t) state.codes = t.split(',').filter(Boolean);
+  if (t) {
+    state.codes = t.split(',').filter((c) => c && TOKENIZER_BY_CODE.has(c));
+  }
   const th = params.get('th');
   if (th === 'dark' || th === 'light') state.theme = th;
   return state;

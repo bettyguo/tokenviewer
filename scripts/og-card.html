@@ -1,0 +1,220 @@
+<!doctype html>
+<!--
+  Standalone 1200x630 social-card layout. Rendered to public/og-image.png by
+  scripts/gen_og.mjs (Playwright). Colors mirror src/styles/theme.css; the
+  bar chart numbers come straight from data/baseline_corpus_results.json
+  (the zh column). Self-contained: no bundler, no fonts beyond the system
+  monospace and sans-serif stacks. Edit the values below and re-run
+  `npm run og` to regenerate.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      :root {
+        --bg: #0a0b0e;
+        --bg-raised: #161821;
+        --border: #262a36;
+        --text: #e7e9ed;
+        --text-dim: #9aa0ab;
+        --text-faint: #7a7e88;
+        --accent: #f2a932;
+        --gpt2: #56b4e9;
+        --deepseek: #d55e00;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+      }
+      .card {
+        width: 1200px;
+        height: 630px;
+        padding: 60px 72px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        position: relative;
+        background:
+          radial-gradient(
+            ellipse 600px 300px at 90% 10%,
+            #f2a93215 0%,
+            transparent 60%
+          ),
+          var(--bg);
+      }
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .brand {
+        font-size: 64px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+      .caret {
+        color: var(--accent);
+      }
+      .tagline {
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        font-size: 28px;
+        font-weight: 400;
+        color: var(--text);
+        line-height: 1.3;
+        margin-top: 14px;
+        max-width: 880px;
+      }
+      .meta {
+        text-align: right;
+        font-size: 14px;
+        color: var(--text-faint);
+        line-height: 1.6;
+      }
+      .meta .meta-h {
+        color: var(--accent);
+        font-weight: 500;
+        letter-spacing: 0.04em;
+      }
+      .bars {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: 200px 60px 1fr;
+        gap: 10px 16px;
+        align-items: center;
+        font-size: 18px;
+      }
+      .label {
+        color: var(--text);
+        text-align: right;
+      }
+      .label.lo {
+        color: var(--text-dim);
+      }
+      .count {
+        color: var(--text);
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+      }
+      .count.hi {
+        color: #ff8a8a;
+        font-weight: 500;
+      }
+      .count.lo {
+        color: #6dd3a3;
+        font-weight: 500;
+      }
+      .bar {
+        height: 22px;
+        border-radius: 3px;
+        background: linear-gradient(90deg, var(--c) 0%, var(--c) 100%);
+        opacity: 0.85;
+      }
+      .punchline {
+        margin-top: auto;
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        font-size: 22px;
+        color: var(--text-dim);
+        line-height: 1.45;
+        max-width: 880px;
+      }
+      .punchline b {
+        color: var(--text);
+        font-weight: 500;
+      }
+      .punchline .accent {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .foot {
+        font-size: 14px;
+        color: var(--text-faint);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="top">
+        <div>
+          <div class="brand">tokenviewer<span class="caret">_</span></div>
+          <div class="tagline">
+            Nine LLM tokenizers, one paragraph — see who pays the token tax.
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-h">SHARED PASSAGE · CHINESE</div>
+          <div>245 bytes · 85 characters</div>
+          <div>9 tokenizers · spread 3.43×</div>
+        </div>
+      </div>
+
+      <div class="bars">
+        <span class="label">DeepSeek-V3</span>
+        <span class="count lo">51</span>
+        <span class="bar" style="--c: #d55e00; width: 17%"></span>
+
+        <span class="label lo">Qwen3</span>
+        <span class="count">57</span>
+        <span class="bar" style="--c: #0072b2; width: 19%"></span>
+
+        <span class="label lo">Gemma 2</span>
+        <span class="count">61</span>
+        <span class="bar" style="--c: #7ec97a; width: 21%"></span>
+
+        <span class="label lo">mT5</span>
+        <span class="count">69</span>
+        <span class="bar" style="--c: #9c6cff; width: 24%"></span>
+
+        <span class="label lo">o200k_base</span>
+        <span class="count">75</span>
+        <span class="bar" style="--c: #e69f00; width: 26%"></span>
+
+        <span class="label lo">Llama 3</span>
+        <span class="count">77</span>
+        <span class="bar" style="--c: #cc79a7; width: 27%"></span>
+
+        <span class="label lo">Mistral (tekken)</span>
+        <span class="count">84</span>
+        <span class="bar" style="--c: #e0656d; width: 29%"></span>
+
+        <span class="label lo">cl100k_base</span>
+        <span class="count">107</span>
+        <span class="bar" style="--c: #009e73; width: 38%"></span>
+
+        <span class="label">GPT-2</span>
+        <span class="count hi">175</span>
+        <span class="bar" style="--c: #56b4e9; width: 62%"></span>
+      </div>
+
+      <div class="punchline">
+        <b>GPT-2 spends 175 tokens</b> on this Chinese passage.
+        <b>DeepSeek-V3 needs 51.</b> Same information,
+        <span class="accent">3.4× the cost</span>.
+      </div>
+
+      <div class="foot">runs in your browser · no text sent to a server</div>
+    </div>
+  </body>
+</html>

@@ -22,8 +22,12 @@ export interface GallerySample {
   text: string;
 }
 
+// Mixed English + Chinese is the fastest way to show the cross-tokenizer spread
+// above the fold: GPT-2 spends ~2–3× more tokens on the Chinese half than
+// DeepSeek-V3 does, so the spread metric pops on first paint.
 const DEFAULT_SAMPLE =
-  'Tokenizers see the same text differently. 同样的文字,不同的切分方式。';
+  'Tokenizers see the same text very differently. ' +
+  '不同分词器对同一段中文的切分方式差别很大,这就是 token 税。';
 
 const TOKENIZE_DEBOUNCE_MS = 140;
 const URL_DEBOUNCE_MS = 450;
@@ -72,6 +76,7 @@ export class AppState {
     });
     this.client.onResult((reqId, result) => {
       if (reqId !== this.currentReqId) return; // stale request
+      if (!this.enabledCodes.includes(result.code)) return; // toggled off mid-flight
       this.resultsByCode = { ...this.resultsByCode, [result.code]: result };
     });
     this.client.onDone((reqId) => {
@@ -88,16 +93,23 @@ export class AppState {
       /* storage unavailable */
     }
 
-    const fromHash = await decodeStateFromHash(location.hash);
+    // Snapshot the text at the moment of init so a user who starts typing
+    // before the async hash decode resolves isn't blown away by the decoded value.
+    const textAtStart = this.text;
+    const hashAtStart = location.hash;
+    const fromHash = await decodeStateFromHash(hashAtStart);
     if (fromHash.theme) this.theme = fromHash.theme;
     if (fromHash.codes && fromHash.codes.length > 0) {
       this.enabledCodes = fromHash.codes;
     }
-    if (fromHash.text !== undefined) {
-      this.text = fromHash.text;
-    } else if (location.hash.includes('i=')) {
-      this.notice = 'The shared link could not be decoded; starting empty.';
-      this.text = '';
+    if (this.text === textAtStart) {
+      // User hasn't typed during the decode — safe to replace.
+      if (fromHash.text !== undefined) {
+        this.text = fromHash.text;
+      } else if (hashAtStart.includes('i=')) {
+        this.notice = 'The shared link could not be decoded; starting empty.';
+        this.text = '';
+      }
     }
     this.applyTheme();
     this.runTokenize();
@@ -105,9 +117,21 @@ export class AppState {
 
   /** Re-apply state from the URL hash (used for browser back/forward). */
   async reloadFromHash(): Promise<void> {
-    const s = await decodeStateFromHash(location.hash);
+    const hashAtStart = location.hash;
+    const s = await decodeStateFromHash(hashAtStart);
+    if (s.theme) {
+      this.theme = s.theme;
+      this.applyTheme();
+    }
     if (s.codes && s.codes.length > 0) this.enabledCodes = s.codes;
-    this.text = s.text ?? '';
+    if (s.text !== undefined) {
+      this.text = s.text;
+    } else if (hashAtStart.includes('i=')) {
+      this.notice = 'The shared link could not be decoded; starting empty.';
+      this.text = '';
+    } else {
+      this.text = '';
+    }
     this.runTokenize();
   }
 

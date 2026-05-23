@@ -7,7 +7,7 @@ placeholder once deployed.
 
 **1/** (attach: docs/screenshots/hero-chinese.png)
 
-The same Chinese paragraph, tokenized by seven different LLM tokenizers.
+The same Chinese paragraph, tokenized by nine different LLM tokenizers.
 
 GPT-2 spends 175 tokens on it. DeepSeek-V3 spends 51. Same text, 3.4x the cost.
 
@@ -24,7 +24,7 @@ The reference corpus shows the spread on one translated passage:
 
 - Chinese: 51 to 175 tokens (3.4x)
 - Japanese: 59 to 158 (2.7x)
-- Arabic: 70 to 213 (3.0x)
+- Arabic: 65 to 213 (3.3x)
 
 ---
 
@@ -32,7 +32,7 @@ The reference corpus shows the spread on one translated passage:
 
 The quieter finding is about fairness.
 
-The Swahili version of that passage costs 83 tokens at best — versus 61 for
+The Swahili version of that passage costs 83 tokens at best — versus 60 for
 English. Swahili uses the Latin alphabet, so it is not penalised for its
 script. The gap is training-data coverage.
 
@@ -66,7 +66,7 @@ in the same places.
 It all runs in your browser. The text you paste never goes to a server —
 no backend, no analytics, no third-party scripts.
 
-Each of the seven tokenizers is verified in the test suite against a
+Each of the nine tokenizers is verified in the test suite against a
 canonical reference, so the segmentation you see is the real thing.
 
 ---
@@ -76,8 +76,8 @@ canonical reference, so the segmentation you see is the real thing.
 Open source, MIT licensed. Try it with your own text — multilingual content
 and source files are where it gets interesting:
 
-[live URL]
+https://bettyguo.github.io/tokenviewer/
 
-Repo and design notes: [repo URL]
+Repo and design notes: https://github.com/bettyguo/tokenviewer
 
-(Working name. Suggestions welcome.)
+(Bug reports welcome — tokenizer edge cases especially.)

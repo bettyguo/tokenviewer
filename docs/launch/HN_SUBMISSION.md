@@ -12,12 +12,12 @@ Show HN: Tokenviewer – compare LLM tokenizers side by side in your browser
 
 Alternates if the title needs a different angle:
 
-- `Show HN: See how 7 LLM tokenizers split the same text, side by side` (66)
+- `Show HN: See how 9 LLM tokenizers split the same text, side by side` (66)
 - `Show HN: A cross-tokenizer comparison tool for LLM tokenization` (62)
 
 ## URL
 
-The live GitHub Pages URL (to be filled in once deployed).
+https://bettyguo.github.io/tokenviewer/
 
 ## First comment (post immediately after submitting)
 
@@ -25,8 +25,9 @@ The live GitHub Pages URL (to be filled in once deployed).
 > this Chinese paragraph cost under GPT-2 than under o200k" or "does Llama 3
 > split this identifier the same way DeepSeek does", and the existing tools
 > only show one tokenizer at a time. So this renders the same text through
-> seven tokenizers at once — GPT-2, cl100k, o200k, Llama 3, DeepSeek-V3,
-> Qwen3, and mT5 — with colored byte spans you can hover.
+> nine tokenizers at once — GPT-2, cl100k, o200k, Llama 3, DeepSeek-V3,
+> Qwen3, Mistral (tekken), mT5, and Gemma 2 — with colored byte spans you
+> can hover.
 >
 > Two things I think are worth a look beyond the side-by-side view:
 >
@@ -46,8 +47,7 @@ The live GitHub Pages URL (to be filled in once deployed).
 > for the OpenAI encodings, the Rust `tokenizers` library for the Hugging
 > Face ones).
 >
-> The name is a placeholder. Suggestions welcome, along with bug reports —
-> tokenizer edge cases especially.
+> Bug reports welcome — tokenizer edge cases especially.
 
 ## Notes
 
