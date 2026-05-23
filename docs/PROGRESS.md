@@ -802,3 +802,66 @@ with canonical 175/51 assertion · skip link + semantic H1/H2 hierarchy
 - Automated a11y testing via `@axe-core/playwright` would let CI catch
   regressions; the manual audit + smoke test give strong coverage
   today but not as strong as Axe scanning every component state.
+
+---
+
+## Iter 14 — Live deploy (complete)
+
+Substituted `OWNER` → `bettyguo` via `node scripts/set_repo_url.mjs`
+across `package.json`, `index.html`, `Header.svelte`, `README.md`, and
+the launch docs. One stale comment in `index.html` was cleaned up
+manually; one redundant set-repo-url note in HN_SUBMISSION removed.
+
+GitHub Pages was already configured for this repo with
+`build_type: "workflow"` and `https_enforced: true` (`gh api
+repos/bettyguo/tokenviewer/pages`). No further setup required.
+
+Single squashed commit `de2ffe5` covers every change in iters 1-13.
+Pushed to `origin/main`:
+
+```
+6035199..de2ffe5  main -> main
+```
+
+Both workflows triggered immediately:
+
+- **CI** (run 26329653241) — passed. Every step ✓: install, cache,
+  setup, type-check, lint, **182 tests**, build, verify build output,
+  Playwright install, subpath pages-serve emulator, **smoke against
+  `/tokenviewer/` (the Pages-shape URL)**. The deploy can no longer
+  ship while CI is red on the same commit.
+- **Deploy to GitHub Pages** (run 26329653253) — `build` 32s,
+  `deploy` 11s. Both ✓.
+
+Live URL verification (`curl -sI`):
+
+```
+GET https://bettyguo.github.io/tokenviewer/                    → 200 (5166 B)
+GET https://bettyguo.github.io/tokenviewer/favicon.svg         → 200 (604 B)
+GET https://bettyguo.github.io/tokenviewer/og-image.png        → 200 (277921 B)
+GET https://bettyguo.github.io/tokenviewer/tokenizers/gpt2.json → 200 (545308 B)
+GET https://bettyguo.github.io/tokenviewer/fonts/jetbrains-mono-regular.woff2 → 200 (21168 B)
+```
+
+**Smoke test against the LIVE production URL** (`SMOKE_URL=https://bettyguo.github.io/tokenviewer/`):
+
+```
+Opening https://bettyguo.github.io/tokenviewer/
+tokenizer rows: 9
+token counts: 57, 41, 34, 34, 29, 31, 36, 29, 34
+chinese sample counts: 175, 107, 75, 77, 51, 57, 69, 61, 84
+theme after toggle: light
+no console errors
+SMOKE: PASSED
+```
+
+The canonical `Math.max=175, Math.min=51` assertion holds on the live
+deploy — proof that the production site is functionally identical to
+local. 9 tokenizers render, the Chinese passage spread is correct,
+the theme toggle works, zero console errors.
+
+**The site is live, functional, and accessible at
+https://bettyguo.github.io/tokenviewer/.**
+
+Future pushes to `main` will rebuild and redeploy through the same
+workflow; doc-only pushes are excluded via `paths-ignore`.
